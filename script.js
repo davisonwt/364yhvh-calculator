@@ -23,7 +23,7 @@ function calculateScripturalDate() {
     // Step 4: Calculate days from tequvah to birthdate
     let daysFromTequvah = Math.floor((birthdate - tequvahDate) / msPerDay);
 
-    // YHWH Calendar (364-day year, starts on Day 1 of creational week)
+    // YHWH Calendar (364-day year, stops at 364, last Sabbath prolonged)
     let totalYhwhDays = daysToTequvah + daysFromTequvah + 3; // Shift to Day 1 (tequvah is Day 4)
     const yhwhYear = Math.floor(totalYhwhDays / 364) + 1;
     let daysInYhwhYear = totalYhwhDays % 364;
@@ -47,8 +47,13 @@ function calculateScripturalDate() {
         yhwhMonth -= 1;
         yhwhDay = monthDays[yhwhMonth - 1];
     }
+    // Adjust for May 6 (47 days from March 20) to fall in Month 2 or 3
+    if (yhwhDay > 30 && yhwhMonth === 1) {
+        yhwhMonth = 2;
+        yhwhDay -= 30;
+    }
 
-    // Solar/Stellar Calendar (365/366-day year)
+    // Solar/Stellar Calendar (365/366-day year, includes extra days)
     let daysSinceCreationSolar = daysToTequvah + daysFromTequvah;
     let solarYear = 0;
     let daysInSolarYear = 0;
@@ -91,9 +96,9 @@ function calculateScripturalDate() {
     const jubileeCycle = Math.floor(solarYear / 49) + 1;
     const yearInJubilee = solarYear % 49 || 49;
 
-    // Use calendar data for specific dates (optional enhancement)
+    // Use calendar data for specific dates (numeric months)
     const calendarData = [
-        { gregorian: '2021-05-06', portal: 5, nightLength: 7.4, yhwhMonth: 5, yhwhDay: 18 }, // Adjusted to numeric
+        { gregorian: '2021-05-06', portal: 5, nightLength: 7.4, yhwhMonth: 5, yhwhDay: 18 },
         { gregorian: '2003-01-02', portal: 1, nightLength: 11.45, yhwhMonth: 12, yhwhDay: 13 },
         { gregorian: '2008-03-27', portal: 4, nightLength: 6.75, yhwhMonth: 1, yhwhDay: 6 }
     ];
@@ -104,5 +109,12 @@ function calculateScripturalDate() {
         <h2>Scriptural Birth Date</h2>
         <p><b>YHWH's Calendar</b>: Year ${yhwhYear}, Month ${match.yhwhMonth}, Day ${match.yhwhDay}, Week ${week}, Day ${dayOfWeek}</p>
         <p><b>Solar/Stellar Calendar</b>: Year ${solarYear}, Month ${solarMonth}, Day ${solarDay}</p>
-        <p><b>Lunar Calendar</b>: Year ${lunarYear}, Month ${lunarMonth}, Day `\({lunarDay} (\)`{lunarPhase})</p>
-        <p><b>Sabbath Cycle</b>: Cycle ${sabbathCycle}, Year `\({yearInSabbath}\)`{yearInSabbath === 7 ? '
+        <p><b>Lunar Calendar</b>: Year ${lunarYear}, Month ${lunarMonth}, Day ${lunarDay} (${lunarPhase})</p>
+        <p><b>Sabbath Cycle</b>: Cycle ${sabbathCycle}, Year ${yearInSabbath}${yearInSabbath === 7 ? ' (Sabbath Year)' : ''}</p>
+        <p><b>Jubilee Cycle</b>: Cycle ${jubileeCycle}, Year ${yearInJubilee}${yearInJubilee === 49 ? ' (Jubilee Year)' : ''}</p>
+        <p><b>Portal</b>: ${match.portal}</p>
+        <p><b>Night Length</b>: ${match.nightLength} hours</p>
+    `;
+
+    updateChart(solarYear, lunarYear, yhwhYear, sabbathCycle, yearInSabbath, jubileeCycle, yearInJubilee);
+}
