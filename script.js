@@ -14,7 +14,7 @@ function calculateScripturalDate() {
         }
 
         // Step 1: Determine the Creation Date and Equinox
-        const creationYear = -9922; // Adjusted to align 1969/1970 with 5972 (YHWH 3996 = -4 BC, 2025/2026 = 6028)
+        const creationYear = -21842; // Adjusted to align 1969/1970 with 5972 (YHWH 3996 = -4 BC, 2025/2026 = 6028)
         const creationTequvah = new Date(creationYear, 2, 20); // March 20
         const msPerDay = 1000 * 60 * 60 * 24;
 
@@ -34,8 +34,8 @@ function calculateScripturalDate() {
         const yhwhYear = Math.floor(totalDaysSinceCreation / 364) + 1;
         let daysInYhwhYear = totalDaysSinceCreation % 364;
         if (daysInYhwhYear === 0) daysInYhwhYear = 364;
-        const week = Math.floor((daysInYhwhYear - 1) / 7) + 1; // Align with Week 7 for Day 47, Week 8 for Day 48
-        const dayOfWeek = (daysInYhwhYear + 9) % 7 + 1; // Adjusted to align Day 48 with Day 2
+        const week = daysInYhwhYear === 0 ? 1 : Math.floor((daysInYhwhYear - 1) / 7) + 1; // Align with Week 8 for Day 48
+        const dayOfWeek = (daysInYhwhYear + 8) % 7 + 1; // Adjusted to align Day 48 with Day 2
 
         // Calculate YHWH month and day
         const monthDays = [30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 34]; // Total 364
