@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>364 YHWH Calendar Calculator</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        input { padding: 5px; margin: 5px 0; }
+        button { padding: 5px 10px; }
+        #result { margin-top: 20px; }
+        canvas { max-width: 100%; }
+    </style>
+</head>
+<body>
+    <h1>364 YHWH Calendar Calculator</h1>
+    <label for="birthdate">Enter Birth Date (YYYY-MM-DD):</label>
+    <input type="date" id="birthdate">
+    <button onclick="calculateScripturalDate()">Calculate</button>
+    <button onclick="downloadPDF()">Download as PDF</button>
+    <div id="result"></div>
+    <canvas id="calendarChart" width="400" height="200"></canvas>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
