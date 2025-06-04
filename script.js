@@ -14,7 +14,7 @@ function calculateScripturalDate() {
         }
 
         // Step 1: Determine the Creation Date and Equinox
-        const creationYear = -5986; // Adjusted to align 1969/1970 with 5972 (YHWH 3996 = -4 BC, 2025/2026 = 6028)
+        const creationYear = -5983; // Adjusted to align 1969/1970 with 5972 (YHWH 3996 = -4 BC, 2025/2026 = 6028)
         const creationTequvah = new Date(creationYear, 2, 20); // March 20
         const msPerDay = 1000 * 60 * 60 * 24;
 
@@ -61,11 +61,8 @@ function calculateScripturalDate() {
             { gregorian: '2003-01-02', yhwhMonth: 10, yhwhDay: 13 },
             { gregorian: '2008-03-27', yhwhMonth: 1, yhwhDay: 7 }
         ];
-        const birthdateString = birthdate.toDateString();
-        const match = calendarData.find(entry => {
-            const entryDate = new Date(entry.gregorian);
-            return entryDate.toDateString() === birthdateString;
-        }) || { yhwhMonth, yhwhDay };
+        const birthdateString = birthdate.toISOString().split('T')[0];
+        const match = calendarData.find(entry => entry.gregorian === birthdateString) || { yhwhMonth, yhwhDay };
 
         // Format day, week, and scriptural week day
         const formattedDay = `day ${match.yhwhDay} of 364`;
@@ -98,6 +95,4 @@ function downloadPDF() {
         doc.save('scriptural_birth_date.pdf');
     } catch (error) {
         console.error("PDF download error:", error);
-        alert("Failed to download PDF. Please check the console for details.");
-    }
-}
+        alert("
