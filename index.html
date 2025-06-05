@@ -87,5 +87,16 @@
         <div id="result"></div>
     </div>
     <script src="script.js"></script>
+    <script>
+        // fallback script if script.js fails to load
+        console.log("index.html: inline script loaded");
+        const calculatebtn = document.getElementById('calculatebtn');
+        if (calculatebtn && !window.calculatescripturaldate) {
+            calculatebtn.addEventListener('click', function() {
+                console.log("index.html: fallback - calculate button clicked");
+                alert("script failed to load. please check the console for errors.");
+            });
+        }
+    </script>
 </body>
 </html>
