@@ -88,21 +88,21 @@ function calculatescripturaldate() {
         const birthdatestring = birthdate.toisostring().split('t')[0];
         const match = calendardata.find(entry => entry.gregorian === birthdatestring) || { yhvhyear, yhvhmonth, yhvhday, portal, dayofweek, week, dayof364: daysinyhvhyear };
 
-        // format output
+        // format output with forced small caps
         const formattedday = `day ${match.dayof364} of 364`;
         const formattedweek = `week ${match.week} of 52`;
         const formattedweekday = `day ${match.dayofweek}`;
 
         document.getelementbyid('result').innerhtml = `
-            <h2 style="font-variant: small-caps;">yhvh’s set-apart date of birth</h2>
-            <p style="font-variant: small-caps;"><b>yhvh's year</b>: ${match.yhvhyear}</p>
-            <p style="font-variant: small-caps;"><b>month</b>: ${match.yhvhmonth}</p>
-            <p style="font-variant: small-caps;"><b>day</b>: ${match.yhvhday}</p>
-            <p style="font-variant: small-caps;"><b>day of the week</b>: ${formattedweekday}</p>
-            <p style="font-variant: small-caps;"><b>day of 364</b>: ${formattedday}</p>
-            <p style="font-variant: small-caps;"><b>week of 52</b>: ${formattedweek}</p>
-            <p style="font-variant: small-caps;"><b>portal</b>: ${match.portal}</p>
-            <p style="font-variant: small-caps;"><b>halal-yah!</b></p>
+            <h2 style="text-transform: lowercase; font-variant: small-caps;">yhvh’s set-apart date of birth</h2>
+            <p style="text-transform: lowercase; font-variant: small-caps;"><b>yhvh's year</b>: ${match.yhvhyear}</p>
+            <p style="text-transform: lowercase; font-variant: small-caps;"><b>month</b>: ${match.yhvhmonth}</p>
+            <p style="text-transform: lowercase; font-variant: small-caps;"><b>day</b>: ${match.yhvhday}</p>
+            <p style="text-transform: lowercase; font-variant: small-caps;"><b>day of the week</b>: ${formattedweekday}</p>
+            <p style="text-transform: lowercase; font-variant: small-caps;"><b>day of 364</b>: ${formattedday}</p>
+            <p style="text-transform: lowercase; font-variant: small-caps;"><b>week of 52</b>: ${formattedweek}</p>
+            <p style="text-transform: lowercase; font-variant: small-caps;"><b>portal</b>: ${match.portal}</p>
+            <p style="text-transform: lowercase; font-variant: small-caps;"><b>halal-yah!</b></p>
         `;
 
     } catch (error) {
