@@ -153,13 +153,13 @@
                         var daysfromsundaystart = Math.floor((birthdate - sundaystart) / msperday);
                         var totaldayssincecreation = daystosundaystart + daysfromsundaystart + 1;
 
-                        var yearssincecreation = Math.floor(totaldayssincecreation / 365.2422);
+                        var yearssincecreation = Math.floor(totaldayssincecreation / 364); // use 364 days
                         var cycles = Math.floor(yearssincecreation / 5);
                         var remainingyears = yearssincecreation % 5;
                         var zerodays = cycles * 1; // 1 day per cycle (hello'yaseph)
                         totaldayssincecreation += zerodays;
 
-                        var daysperyhvhyear = 365;
+                        var daysperyhvhyear = 364;
                         var yhvhyear = Math.floor(totaldayssincecreation / daysperyhvhyear) + 1;
                         var daysinyear = totaldayssincecreation % daysperyhvhyear;
                         if (daysinyear === 0) {
@@ -167,7 +167,7 @@
                             yhvhyear -= 1;
                         }
 
-                        var yearadjustment = 5973 - (yhvhyear - 1 - (birthyear - 1969));
+                        var yearadjustment = 5972 - (yhvhyear - 1 - (birthyear - 1969));
                         yhvhyear += yearadjustment;
 
                         var week = Math.ceil(daysinyear / 7);
@@ -204,7 +204,7 @@
                         else if (dayofweek == 7) feast = "shabbath week " + week;
 
                         var calendardata = [
-                            {date: '1969-05-06', yhvhyear: 5972, yhvhmonth: 2, yhvhday: 17, portal: 5, dayofweek: 2, week: 8, dayofyear: 47},
+                            {date: '1969-05-06', yhvhyear: 5972, yhvhmonth: 2, yhvhday: 22, portal: 5, dayofweek: 2, week: 8, dayofyear: 52},
                             {date: '1969-07-07', yhvhyear: 5973, yhvhmonth: 7, yhvhday: 9, portal: 3, dayofweek: 2, week: 28, dayofyear: 191},
                             {date: '2021-05-11', yhvhyear: 6022, yhvhmonth: 2, yhvhday: 22, portal: 5, dayofweek: 2, week: 8, dayofyear: 52},
                             {date: '2003-01-02', yhvhyear: 6004, yhvhmonth: 10, yhvhday: 4, portal: 1, dayofweek: 5, week: 40, dayofyear: 279},
@@ -223,7 +223,7 @@
                             match = { yhvhyear: yhvhyear, yhvhmonth: yhvhmonth, yhvhday: yhvhday, portal: portal, dayofweek: dayofweek, week: week, dayofyear: daysinyear };
                         }
 
-                        var formattedday = "day " + match.dayofyear + " of 365";
+                        var formattedday = "day " + match.dayofyear + " of 364";
                         var formattedweek = "week " + match.week + " of 52";
                         var formattedweekday = "day " + match.dayofweek;
 
@@ -232,7 +232,7 @@
                             '<p style="text-transform: lowercase; font-variant: small-caps;"><b>month</b>: ' + match.yhvhmonth + '</p>' +
                             '<p style="text-transform: lowercase; font-variant: small-caps;"><b>day</b>: ' + match.yhvhday + '</p>' +
                             '<p style="text-transform: lowercase; font-variant: small-caps;"><b>day of the week</b>: ' + formattedweekday + '</p>' +
-                            '<p style="text-transform: lowercase; font-variant: small-caps;"><b>day of 365</b>: ' + formattedday + '</p>' +
+                            '<p style="text-transform: lowercase; font-variant: small-caps;"><b>day of 364</b>: ' + formattedday + '</p>' +
                             '<p style="text-transform: lowercase; font-variant: small-caps;"><b>week of 52</b>: ' + formattedweek + '</p>' +
                             '<p style="text-transform: lowercase; font-variant: small-caps;"><b>portal</b>: ' + match.portal + '</p>';
                         if (feast) {
@@ -270,4 +270,4 @@
         })();
     </script>
 </body>
-</html>
+</html><!
