@@ -92,17 +92,15 @@
                     try {
                         console.log("starting calculation");
                         var birthdateinput = document.getElementById('birthdate').value;
+                        console.log("input date: " + birthdateinput);
                         if (!birthdateinput) {
                             resultDiv.innerHTML = '<h2 style="text-transform: lowercase; font-variant: small-caps;">yhvh\'s set-apart date of birth</h2>' +
                                 '<p style="text-transform: lowercase; font-variant: small-caps;">please enter a valid date.</p>';
                             return;
                         }
-                        var birthdate = new Date(birthdateinput + 'T00:00:00Z');
-                        if (isNaN(birthdate) || birthdate > new Date()) {
-                            resultDiv.innerHTML = '<h2 style="text-transform: lowercase; font-variant: small-caps;">yhvh\'s set-apart date of birth</h2>' +
-                                '<p style="text-transform: lowercase; font-variant: small-caps;">please enter a valid past date.</p>';
-                            return;
-                        }
+                        var birthdate = new Date(birthdateinput);
+                        var birthdatestring = birthdate.toISOString().split('T')[0];
+                        console.log("formatted date: " + birthdatestring);
 
                         // use calendardata for pre-set values
                         var calendardata = [
@@ -113,25 +111,34 @@
                             {date: '2008-03-27', yhvhyear: 6009, yhvhmonth: 1, yhvhday: 7, portal: 4, dayofweek: 5, week: 1, dayofyear: 7}
                         ];
 
-                        var birthdatestring = birthdate.toISOString().split('T')[0];
                         var match = null;
                         for (var j = 0; j < calendardata.length; j++) {
+                            console.log("comparing with: " + calendardata[j].date);
                             if (calendardata[j].date === birthdatestring) {
                                 match = calendardata[j];
+                                console.log("match found: " + JSON.stringify(match));
                                 break;
                             }
                         }
 
-                        var finalyhvhyear = match ? match.yhvhyear : 0;
-                        var finalyhvhmonth = match ? match.yhvhmonth : 0;
-                        var finalyhvhday = match ? match.yhvhday : 0;
-                        var finalportal = match ? match.portal : 0;
-                        var finaldayofweek = match ? match.dayofweek : 0;
-                        var finalweek = match ? match.week : 0;
-                        var finaldayofyear = match ? match.dayofyear : 0;
-                        var feast = ""; // no feast for now, to be determined later
+                        if (!match) {
+                            console.log("no match found for: " + birthdatestring);
+                            resultDiv.innerHTML = '<h2 style="text-transform: lowercase; font-variant: small-caps;">yhvh\'s set-apart date of birth</h2>' +
+                                '<p style="text-transform: lowercase; font-variant: small-caps;">no data available for this date.</p>' +
+                                '<p style="text-transform: lowercase; font-variant: small-caps;"><b>halal-yah!</b></p>';
+                            return;
+                        }
 
-                        console.log("matched data - year: " + finalyhvhyear + ", month: " + finalyhvhmonth + ", day: " + finalyhvhday);
+                        var finalyhvhyear = match.yhvhyear;
+                        var finalyhvhmonth = match.yhvhmonth;
+                        var finalyhvhday = match.yhvhday;
+                        var finalportal = match.portal;
+                        var finaldayofweek = match.dayofweek;
+                        var finalweek = match.week;
+                        var finaldayofyear = match.dayofyear;
+                        var feast = ""; // no feast for now
+
+                        console.log("final values - year: " + finalyhvhyear + ", month: " + finalyhvhmonth + ", day: " + finalyhvhday);
 
                         var formattedday = "day " + finaldayofyear + " of 364";
                         var formattedweek = "week " + finalweek + " of 52";
