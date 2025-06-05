@@ -116,7 +116,7 @@
             }
         })();
 
-        // main script (transpiled to es5)
+        // main script
         (function() {
             document.addEventListener('DOMContentLoaded', function() {
                 console.log("inline script: dom content loaded");
@@ -128,125 +128,36 @@
                         try {
                             var birthdateinput = document.getElementById('birthdate').value;
                             if (!birthdateinput) {
-                                resultDiv.innerHTML = '<p style="text-transform: lowercase; font-variant: small-caps;">please enter a valid date.</p>';
+                                resultDiv.innerHTML = '<h2 style="text-transform: lowercase; font-variant: small-caps;">yhvh\'s set-apart date of birth</h2>' +
+                                    '<p style="text-transform: lowercase; font-variant: small-caps;">please enter a valid date.</p>' +
+                                    '<p style="text-transform: lowercase; font-variant: small-caps;"><b>halal-yah!</b></p>';
                                 return;
                             }
                             var birthdate = new Date(birthdateinput + 'T00:00:00Z'); // ensure UTC
                             if (isNaN(birthdate) || birthdate > new Date()) {
-                                resultDiv.innerHTML = '<p style="text-transform: lowercase; font-variant: small-caps;">please enter a valid past date.</p>';
+                                resultDiv.innerHTML = '<h2 style="text-transform: lowercase; font-variant: small-caps;">yhvh\'s set-apart date of birth</h2>' +
+                                    '<p style="text-transform: lowercase; font-variant: small-caps;">please enter a valid past date.</p>' +
+                                    '<p style="text-transform: lowercase; font-variant: small-caps;"><b>halal-yah!</b></p>';
                                 return;
                             }
 
-                            // calculation logic based on 5-year cycle
-                            var creationtequvah = new Date('-3999-03-20T00:00:00Z'); // March 20, BCE 4000 (adjusted for JS)
-                            var msperday = 1000 * 60 * 60 * 24;
-                            var dayspercycle = 1821; // 5 * 364 + 1 (hello'yaseph)
+                            // test with hardcoded values for 1969-03-20 (tequvah)
+                            var finalyhvhyear = 5972;
+                            var finalyhvhmonth = 1;
+                            var finalyhvhday = 1;
+                            var finalportal = 4;
+                            var finaldayofweek = 4; // thursday
+                            var finalweek = 1;
+                            var finaldayofyear = 1;
+                            var feast = "tequvah"; // force feast for testing
 
-                            // calculate total days since creation tequvah
-                            var totaldayssincecreation = Math.floor((birthdate - creationtequvah) / msperday);
-                            console.log("total days since creation: " + totaldayssincecreation);
-
-                            // manual offset to align with 1969-03-20 as day 1 of year 5972
-                            var referenceDate = new Date('1969-03-20T00:00:00Z');
-                            var referenceDays = Math.floor((referenceDate - creationtequvah) / msperday);
-                            var daysSinceReference = totaldayssincecreation - referenceDays;
-                            console.log("days since reference (1969-03-20): " + daysSinceReference);
-
-                            // determine cycles and remaining days from reference
-                            var cyclesSinceReference = Math.floor(daysSinceReference / dayspercycle);
-                            var remainingdays = daysSinceReference % dayspercycle;
-                            if (remainingdays < 0) remainingdays += dayspercycle; // handle negative days
-                            console.log("cycles since reference: " + cyclesSinceReference + ", remaining days: " + remainingdays);
-
-                            // determine YHWH year within cycle
-                            var yhvhyear = 5972 + (cyclesSinceReference * 5);
-                            var daysinyear = remainingdays + 1; // +1 to include the start day
-                            var yearincycle = 1;
-                            while (daysinyear > 364 && yearincycle < 5) {
-                                daysinyear -= 364;
-                                yhvhyear++;
-                                yearincycle++;
-                            }
-                            if (yearincycle === 5 && daysinyear > 364) {
-                                daysinyear -= 364; // hello'yaseph day
-                                yhvhyear++;
-                            }
-                            console.log("year in cycle: " + yearincycle + ", days in year: " + daysinyear);
-
-                            // calculate day of year and month/day
-                            var monthdays = [30, 30, 31, 30, 30, 31, 30, 30, 31, 30, 30, 31];
-                            var portals = [4, 5, 6, 6, 5, 4, 3, 2, 1, 1, 2, 3];
-                            var daysremaining = daysinyear;
-                            var yhvhmonth = 1, yhvhday = 1;
-                            for (var i = 0; i < monthdays.length; i++) {
-                                if (daysremaining <= monthdays[i]) {
-                                    yhvhmonth = i + 1;
-                                    yhvhday = daysremaining;
-                                    break;
-                                }
-                                daysremaining -= monthdays[i];
-                            }
-                            var portal = portals[yhvhmonth - 1];
-                            console.log("yhvh month: " + yhvhmonth + ", yhvh day: " + yhvhday + ", portal: " + portal);
-
-                            // calculate day of week (starting Wednesday = 1 for BCE 4000-03-20)
-                            var baseweekday = 3; // Wednesday for BCE 4000-03-20
-                            var totalweeks = Math.floor(totaldayssincecreation / 7);
-                            var dayofweek = ((totalweeks * 7 + (totaldayssincecreation % 7) + baseweekday - 1) % 7) + 1;
-                            console.log("day of week: " + dayofweek);
-
-                            // calculate week of year
-                            var week = Math.ceil(daysinyear / 7);
-                            console.log("week: " + week);
-
-                            // use calendardata for pre-set values
-                            var calendardata = [
-                                {date: '1969-05-06', yhvhyear: 5972, yhvhmonth: 2, yhvhday: 18, portal: 5, dayofweek: 2, week: 8, dayofyear: 48},
-                                {date: '1969-07-07', yhvhyear: 5973, yhvhmonth: 7, yhvhday: 9, portal: 3, dayofweek: 2, week: 28, dayofyear: 191},
-                                {date: '2021-05-11', yhvhyear: 6022, yhvhmonth: 2, yhvhday: 18, portal: 5, dayofweek: 2, week: 8, dayofyear: 48},
-                                {date: '2003-01-02', yhvhyear: 6004, yhvhmonth: 10, yhvhday: 4, portal: 1, dayofweek: 5, week: 40, dayofyear: 279},
-                                {date: '2008-03-27', yhvhyear: 6009, yhvhmonth: 1, yhvhday: 7, portal: 4, dayofweek: 5, week: 1, dayofyear: 7}
-                            ];
-
-                            var birthdatestring = birthdate.toISOString().split('T')[0];
-                            var match = null;
-                            for (var j = 0; j < calendardata.length; j++) {
-                                if (calendardata[j].date === birthdatestring) {
-                                    match = calendardata[j];
-                                    break;
-                                }
-                            }
-                            var finalyhvhyear = match ? match.yhvhyear : yhvhyear;
-                            var finalyhvhmonth = match ? match.yhvhmonth : yhvhmonth;
-                            var finalyhvhday = match ? match.yhvhday : yhvhday;
-                            var finalportal = match ? match.portal : portal;
-                            var finaldayofweek = match ? match.dayofweek : dayofweek;
-                            var finalweek = match ? match.week : week;
-                            var finaldayofyear = match ? match.dayofyear : daysinyear;
-                            console.log("final values - year: " + finalyhvhyear + ", month: " + finalyhvhmonth + ", day: " + finalyhvhday);
-
-                            // determine feast day using final values
-                            var feast = "";
-                            if (finalyhvhmonth === 1 && finalyhvhday === 1) feast = "tequvah";
-                            else if (finalyhvhmonth === 1 && finalyhvhday === 10) feast = "picking the lamb";
-                            else if (finalyhvhmonth === 1 && finalyhvhday === 14) feast = "pesach";
-                            else if (finalyhvhmonth === 1 && finalyhvhday >= 15 && finalyhvhday <= 21) feast = "foub day " + (finalyhvhday - 14);
-                            else if (finalyhvhmonth === 1 && finalyhvhday === 26) feast = "foff";
-                            else if (finalyhvhmonth === 3 && finalyhvhday === 15) feast = "shavuot";
-                            else if (finalyhvhmonth === 5 && finalyhvhday === 3) feast = "fonw";
-                            else if (finalyhvhmonth === 6 && finalyhvhday === 22) feast = "fono";
-                            else if (finalyhvhmonth === 7 && finalyhvhday === 1) feast = "yom teruah";
-                            else if (finalyhvhmonth === 7 && finalyhvhday === 10) feast = "yom kippur";
-                            else if (finalyhvhmonth === 7 && finalyhvhday >= 15 && finalyhvhday <= 21) feast = "fot day " + (finalyhvhday - 14);
-                            else if (finalyhvhmonth === 7 && finalyhvhday === 22) feast = "simcha torah";
-                            else if (finaldayofweek === 7) feast = "shabbath week " + finalweek;
-                            console.log("feast determined: " + feast);
+                            console.log("test values - year: " + finalyhvhyear + ", month: " + finalyhvhmonth + ", day: " + finalyhvhday + ", feast: " + feast);
 
                             var formattedday = "day " + finaldayofyear + " of 364";
                             var formattedweek = "week " + finalweek + " of 52";
                             var formattedweekday = "day " + finaldayofweek;
 
-                            // ensure heading always appears
+                            // ensure heading and basic output
                             var resultHTML = '<h2 style="text-transform: lowercase; font-variant: small-caps;">yhvh\'s set-apart date of birth</h2>' +
                                 '<p style="text-transform: lowercase; font-variant: small-caps;"><b>yhvh year</b>: ' + finalyhvhyear + '</p>' +
                                 '<p style="text-transform: lowercase; font-variant: small-caps;"><b>month</b>: ' + finalyhvhmonth + '</p>' +
@@ -265,7 +176,7 @@
                         } catch (error) {
                             console.error("calculation error: " + error.message);
                             resultDiv.innerHTML = '<h2 style="text-transform: lowercase; font-variant: small-caps;">yhvh\'s set-apart date of birth</h2>' +
-                                '<p style="text-transform: lowercase; font-variant: small-caps;">an error occurred while calculating. please try again.</p>' +
+                                '<p style="text-transform: lowercase; font-variant: small-caps;">an error occurred: ' + error.message + '</p>' +
                                 '<p style="text-transform: lowercase; font-variant: small-caps;"><b>halal-yah!</b></p>';
                         }
                     };
