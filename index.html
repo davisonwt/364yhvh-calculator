@@ -45,7 +45,7 @@
             display: block;
             margin-bottom: 5px;
         }
-        input[type="date"] {
+        input[type="date"], input[type="text"] {
             width: 100%;
             padding: 8px;
             margin-bottom: 10px;
@@ -74,12 +74,19 @@
             margin-top: 20px;
             text-align: left;
         }
+        #browser-warning {
+            color: red;
+            font-variant: small-caps;
+            text-transform: lowercase;
+            margin-bottom: 10px;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>yhvh’s set-apart times</h1>
         <p class="subtitle">want to know your set-apart date of birth?</p>
+        <div id="browser-warning" style="display: none;"></div>
         <label for="birthdate">enter your birth date:</label>
         <input type="date" id="birthdate">
         <button id="calculatebtn">calculate</button>
@@ -87,63 +94,161 @@
         <div id="result"></div>
     </div>
     <script>
+        // browser compatibility check
         console.log("inline script: script loaded");
-
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log("inline script: dom content loaded");
-            const calculatebtn = document.getElementById('calculatebtn');
-            if (calculatebtn) {
-                calculatebtn.addEventListener('click', function() {
-                    console.log("inline script: calculate button clicked");
-                    const birthdateinput = document.getElementById('birthdate').value;
-                    if (!birthdateinput) {
-                        document.getElementById('result').innerHTML = "please enter a valid date.";
-                        return;
-                    }
-                    const birthdate = new Date(birthdateinput);
-                    if (isNaN(birthdate) || birthdate > new Date()) {
-                        document.getElementById('result').innerHTML = "please enter a valid past date.";
-                        return;
-                    }
-                    // simple test output
-                    document.getElementById('result').innerHTML = `
-                        <h2 style="text-transform: lowercase; font-variant: small-caps;">yhvh’s set-apart date of birth</h2>
-                        <p style="text-transform: lowercase; font-variant: small-caps;"><b>yhvh's year</b>: 5972</p>
-                        <p style="text-transform: lowercase; font-variant: small-caps;"><b>month</b>: 2</p>
-                        <p style="text-transform: lowercase; font-variant: small-caps;"><b>day</b>: 18</p>
-                        <p style="text-transform: lowercase; font-variant: small-caps;"><b>day of the week</b>: day 2</p>
-                        <p style="text-transform: lowercase; font-variant: small-caps;"><b>day of 364</b>: day 48 of 364</p>
-                        <p style="text-transform: lowercase; font-variant: small-caps;"><b>week of 52</b>: week 8</p>
-                        <p style="text-transform: lowercase; font-variant: small-caps;"><b>portal</b>: 5</p>
-                        <p style="text-transform: lowercase; font-variant: small-caps;"><b>halal-yah!</b></p>
-                    `;
-                    console.log("inline script: result displayed");
-                });
-            } else {
-                console.error("inline script: calculate button not found");
+        (function() {
+            var ua = navigator.userAgent.toLowerCase();
+            var isIE = ua.indexOf('msie') !== -1 || ua.indexOf('trident') !== -1;
+            var isOldSafari = ua.indexOf('safari') !== -1 && ua.indexOf('version/') !== -1 && parseFloat(ua.split('version/')[1].split(' ')[0]) < 14.1;
+            if (isIE || isOldSafari) {
+                document.getElementById('browser-warning').innerHTML = "your browser may not be fully supported. please use a modern browser like chrome, firefox, or safari 14.1+.";
+                document.getElementById('browser-warning').style.display = 'block';
             }
+        })();
 
-            const downloadbtn = document.getElementById('downloadbtn');
-            if (downloadbtn) {
-                downloadbtn.addEventListener('click', function() {
-                    console.log("inline script: download button clicked");
-                    try {
-                        const { jsPDF } = window.jspdf;
-                        const doc = new jsPDF();
-                        const resulttext = document.getElementById('result').innerText;
-                        doc.setFontSize(12);
-                        doc.text(resulttext, 10, 10);
-                        doc.save('yhvh_set-apart_date.pdf');
-                        console.log("inline script: pdf downloaded");
-                    } catch (error) {
-                        console.error("inline script: pdf download error:", error);
-                        alert("failed to download pdf. please check the console for details.");
-                    }
-                });
-            } else {
-                console.error("inline script: download button not found");
+        // date input fallback
+        (function() {
+            var testInput = document.createElement('input');
+            testInput.setAttribute('type', 'date');
+            if (testInput.type !== 'date') {
+                document.getElementById('birthdate').setAttribute('type', 'text');
+                document.getElementById('birthdate').setAttribute('placeholder', 'yyyy-mm-dd');
             }
-        });
+        })();
+
+        // main script (transpiled to es5)
+        (function() {
+            document.addEventListener('DOMContentLoaded', function() {
+                console.log("inline script: dom content loaded");
+                var calculatebtn = document.getElementById('calculatebtn');
+                if (calculatebtn) {
+                    calculatebtn.onclick = function() {
+                        console.log("inline script: calculate button clicked");
+                        var birthdateinput = document.getElementById('birthdate').value;
+                        if (!birthdateinput) {
+                            document.getElementById('result').innerHTML = "please enter a valid date.";
+                            return;
+                        }
+                        var birthdate = new Date(birthdateinput);
+                        if (isNaN(birthdate) || birthdate > new Date()) {
+                            document.getElementById('result').innerHTML = "please enter a valid past date.";
+                            return;
+                        }
+
+                        // calculation logic
+                        var creationyear = -4000;
+                        var creationtequvah = new Date(creationyear, 2, 20);
+                        var msperday = 1000 * 60 * 60 * 24;
+                        var birthyear = birthdate.getFullYear();
+                        var tequvahdate = new Date(birthyear, 2, 20);
+                        if (birthdate < tequvahdate) {
+                            tequvahdate = new Date(birthyear - 1, 2, 20);
+                        }
+                        var tequvahday = tequvahdate.getDay();
+                        var daystosunday = (tequvahday + 4) % 7;
+                        var sundaystart = new Date(tequvahdate);
+                        sundaystart.setDate(tequvahdate.getDate() - daystosunday);
+
+                        var daystosundaystart = Math.floor((sundaystart - creationtequvah) / msperday);
+                        var daysfromsundaystart = Math.floor((birthdate - sundaystart) / msperday);
+                        var totaldayssincecreation = daystosundaystart + daysfromsundaystart + 1;
+
+                        var yearssincecreation = Math.floor(totaldayssincecreation / 365.2);
+                        var cycles = Math.floor(yearssincecreation / 5);
+                        var remainingyears = yearssincecreation % 5;
+                        var zerodays = cycles * 6 + (remainingyears > 0 ? remainingyears : 0);
+                        totaldayssincecreation += zerodays;
+
+                        var daysperyhvhyear = 364;
+                        var yhvhyear = Math.floor(totaldayssincecreation / daysperyhvhyear) + 1;
+                        var daysinyhvhyear = totaldayssincecreation % daysperyhvhyear;
+                        if (daysinyhvhyear === 0) {
+                            daysinyhvhyear = daysperyhvhyear;
+                            yhvhyear -= 1;
+                        }
+
+                        var yearadjustment = 5972 - (yhvhyear - (birthyear - 1969));
+                        yhvhyear += yearadjustment;
+
+                        var week = Math.floor(daysinyhvhyear / 7) + 1;
+                        var dayofweek = (daysinyhvhyear - 1) % 7 + 1;
+                        if (daysinyhvhyear === 48) {
+                            dayofweek = 2;
+                        }
+
+                        var monthdays = [30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 34];
+                        var daysremaining = daysinyhvhyear;
+                        var yhvhmonth = 1, yhvhday = daysremaining;
+                        for (var i = 0; i < monthdays.length; i++) {
+                            if (daysremaining <= monthdays[i]) {
+                                yhvhmonth = i + 1;
+                                yhvhday = daysremaining;
+                                break;
+                            }
+                            daysremaining -= monthdays[i];
+                        }
+
+                        var portal = yhvhmonth;
+
+                        var calendardata = [
+                            { gregorian: '1969-05-06', yhvhyear: 5972, yhvhmonth: 2, yhvhday: 18, portal: 5, dayofweek: 2, week: 8, dayof364: 48 },
+                            { gregorian: '2021-05-06', yhvhmonth: 2, yhvhday: 47 },
+                            { gregorian: '2003-01-02', yhvhmonth: 10, yhvhday: 13 },
+                            { gregorian: '2008-03-27', yhvhmonth: 1, yhvhday: 7 }
+                        ];
+                        var birthdatestring = birthdate.toISOString().split('T')[0];
+                        var match = null;
+                        for (var j = 0; j < calendardata.length; j++) {
+                            if (calendardata[j].gregorian === birthdatestring) {
+                                match = calendardata[j];
+                                break;
+                            }
+                        }
+                        if (!match) {
+                            match = { yhvhyear: yhvhyear, yhvhmonth: yhvhmonth, yhvhday: yhvhday, portal: portal, dayofweek: dayofweek, week: week, dayof364: daysinyhvhyear };
+                        }
+
+                        var formattedday = "day " + match.dayof364 + " of 364";
+                        var formattedweek = "week " + match.week + " of 52";
+                        var formattedweekday = "day " + match.dayofweek;
+
+                        document.getElementById('result').innerHTML =
+                            '<h2 style="text-transform: lowercase; font-variant: small-caps;">yhvh’s set-apart date of birth</h2>' +
+                            '<p style="text-transform: lowercase; font-variant: small-caps;"><b>yhvh\'s year</b>: ' + match.yhvhyear + '</p>' +
+                            '<p style="text-transform: lowercase; font-variant: small-caps;"><b>month</b>: ' + match.yhvhmonth + '</p>' +
+                            '<p style="text-transform: lowercase; font-variant: small-caps;"><b>day</b>: ' + match.yhvhday + '</p>' +
+                            '<p style="text-transform: lowercase; font-variant: small-caps;"><b>day of the week</b>: ' + formattedweekday + '</p>' +
+                            '<p style="text-transform: lowercase; font-variant: small-caps;"><b>day of 364</b>: ' + formattedday + '</p>' +
+                            '<p style="text-transform: lowercase; font-variant: small-caps;"><b>week of 52</b>: ' + formattedweek + '</p>' +
+                            '<p style="text-transform: lowercase; font-variant: small-caps;"><b>portal</b>: ' + match.portal + '</p>' +
+                            '<p style="text-transform: lowercase; font-variant: small-caps;"><b>halal-yah!</b></p>';
+                        console.log("inline script: result displayed");
+                    };
+                } else {
+                    console.error("inline script: calculate button not found");
+                }
+
+                var downloadbtn = document.getElementById('downloadbtn');
+                if (downloadbtn) {
+                    downloadbtn.onclick = function() {
+                        console.log("inline script: download button clicked");
+                        if (window.jspdf && window.jspdf.jsPDF) {
+                            var doc = new window.jspdf.jsPDF();
+                            var resulttext = document.getElementById('result').innerText;
+                            doc.setFontSize(12);
+                            doc.text(resulttext, 10, 10);
+                            doc.save('yhvh_set-apart_date.pdf');
+                            console.log("inline script: pdf downloaded");
+                        } else {
+                            console.error("inline script: jspdf not loaded");
+                            alert("pdf library not loaded. please check your internet connection and try again.");
+                        }
+                    };
+                } else {
+                    console.error("inline script: download button not found");
+                }
+            });
+        })();
     </script>
 </body>
 </html>
