@@ -83,20 +83,67 @@
         <label for="birthdate">enter your birth date:</label>
         <input type="date" id="birthdate">
         <button id="calculatebtn">calculate</button>
-        <button id="downloadbtn" onclick="downloadpdf()">download pdf</button>
+        <button id="downloadbtn">download pdf</button>
         <div id="result"></div>
     </div>
-    <script src="script.js"></script>
     <script>
-        // fallback script if script.js fails to load
-        console.log("index.html: inline script loaded");
-        const calculatebtn = document.getElementById('calculatebtn');
-        if (calculatebtn && !window.calculatescripturaldate) {
-            calculatebtn.addEventListener('click', function() {
-                console.log("index.html: fallback - calculate button clicked");
-                alert("script failed to load. please check the console for errors.");
-            });
-        }
+        console.log("inline script: script loaded");
+
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log("inline script: dom content loaded");
+            const calculatebtn = document.getElementById('calculatebtn');
+            if (calculatebtn) {
+                calculatebtn.addEventListener('click', function() {
+                    console.log("inline script: calculate button clicked");
+                    const birthdateinput = document.getElementById('birthdate').value;
+                    if (!birthdateinput) {
+                        document.getElementById('result').innerHTML = "please enter a valid date.";
+                        return;
+                    }
+                    const birthdate = new Date(birthdateinput);
+                    if (isNaN(birthdate) || birthdate > new Date()) {
+                        document.getElementById('result').innerHTML = "please enter a valid past date.";
+                        return;
+                    }
+                    // simple test output
+                    document.getElementById('result').innerHTML = `
+                        <h2 style="text-transform: lowercase; font-variant: small-caps;">yhvh’s set-apart date of birth</h2>
+                        <p style="text-transform: lowercase; font-variant: small-caps;"><b>yhvh's year</b>: 5972</p>
+                        <p style="text-transform: lowercase; font-variant: small-caps;"><b>month</b>: 2</p>
+                        <p style="text-transform: lowercase; font-variant: small-caps;"><b>day</b>: 18</p>
+                        <p style="text-transform: lowercase; font-variant: small-caps;"><b>day of the week</b>: day 2</p>
+                        <p style="text-transform: lowercase; font-variant: small-caps;"><b>day of 364</b>: day 48 of 364</p>
+                        <p style="text-transform: lowercase; font-variant: small-caps;"><b>week of 52</b>: week 8</p>
+                        <p style="text-transform: lowercase; font-variant: small-caps;"><b>portal</b>: 5</p>
+                        <p style="text-transform: lowercase; font-variant: small-caps;"><b>halal-yah!</b></p>
+                    `;
+                    console.log("inline script: result displayed");
+                });
+            } else {
+                console.error("inline script: calculate button not found");
+            }
+
+            const downloadbtn = document.getElementById('downloadbtn');
+            if (downloadbtn) {
+                downloadbtn.addEventListener('click', function() {
+                    console.log("inline script: download button clicked");
+                    try {
+                        const { jsPDF } = window.jspdf;
+                        const doc = new jsPDF();
+                        const resulttext = document.getElementById('result').innerText;
+                        doc.setFontSize(12);
+                        doc.text(resulttext, 10, 10);
+                        doc.save('yhvh_set-apart_date.pdf');
+                        console.log("inline script: pdf downloaded");
+                    } catch (error) {
+                        console.error("inline script: pdf download error:", error);
+                        alert("failed to download pdf. please check the console for details.");
+                    }
+                });
+            } else {
+                console.error("inline script: download button not found");
+            }
+        });
     </script>
 </body>
 </html>
