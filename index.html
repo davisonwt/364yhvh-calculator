@@ -4,7 +4,6 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>yhvh’s set-apart times</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
         body {
             font-family: 'times new roman', times, serif;
@@ -63,10 +62,6 @@
             background-color: #4caf50;
             color: white;
         }
-        #downloadbtn {
-            background-color: #008cba;
-            color: white;
-        }
         button:hover {
             opacity: 0.8;
         }
@@ -74,136 +69,101 @@
             margin-top: 20px;
             text-align: left;
         }
-        #browser-warning {
-            color: red;
-            font-variant: small-caps;
-            text-transform: lowercase;
-            margin-bottom: 10px;
-        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>yhvh’s set-apart times</h1>
         <p class="subtitle">want to know your set-apart date of birth?</p>
-        <div id="browser-warning" style="display: none;"></div>
         <label for="birthdate">enter your birth date:</label>
         <input type="date" id="birthdate">
         <button id="calculatebtn">calculate</button>
-        <button id="downloadbtn">download pdf</button>
         <div id="result"></div>
     </div>
     <script>
-        // browser compatibility check
-        console.log("inline script: script loaded");
-        (function() {
-            var ua = navigator.userAgent.toLowerCase();
-            var isIE = ua.indexOf('msie') !== -1 || ua.indexOf('trident') !== -1;
-            var isOldSafari = ua.indexOf('safari') !== -1 && ua.indexOf('version/') !== -1 && parseFloat(ua.split('version/')[1].split(' ')[0]) < 14.1;
-            if (isIE || isOldSafari) {
-                document.getElementById('browser-warning').innerHTML = "your browser may not be fully supported. please use a modern browser like chrome, firefox, or safari 14.1+.";
-                document.getElementById('browser-warning').style.display = 'block';
-            }
-        })();
-
-        // date input fallback
-        (function() {
-            var testInput = document.createElement('input');
-            testInput.setAttribute('type', 'date');
-            if (testInput.type !== 'date') {
-                document.getElementById('birthdate').setAttribute('type', 'text');
-                document.getElementById('birthdate').setAttribute('placeholder', 'yyyy-mm-dd');
-            }
-        })();
-
         // main script
-        (function() {
-            document.addEventListener('DOMContentLoaded', function() {
-                console.log("inline script: dom content loaded");
-                var calculatebtn = document.getElementById('calculatebtn');
-                if (calculatebtn) {
-                    calculatebtn.onclick = function() {
-                        console.log("inline script: calculate button clicked");
-                        var resultDiv = document.getElementById('result');
-                        try {
-                            var birthdateinput = document.getElementById('birthdate').value;
-                            if (!birthdateinput) {
-                                resultDiv.innerHTML = '<h2 style="text-transform: lowercase; font-variant: small-caps;">yhvh\'s set-apart date of birth</h2>' +
-                                    '<p style="text-transform: lowercase; font-variant: small-caps;">please enter a valid date.</p>' +
-                                    '<p style="text-transform: lowercase; font-variant: small-caps;"><b>halal-yah!</b></p>';
-                                return;
-                            }
-                            var birthdate = new Date(birthdateinput + 'T00:00:00Z'); // ensure UTC
-                            if (isNaN(birthdate) || birthdate > new Date()) {
-                                resultDiv.innerHTML = '<h2 style="text-transform: lowercase; font-variant: small-caps;">yhvh\'s set-apart date of birth</h2>' +
-                                    '<p style="text-transform: lowercase; font-variant: small-caps;">please enter a valid past date.</p>' +
-                                    '<p style="text-transform: lowercase; font-variant: small-caps;"><b>halal-yah!</b></p>';
-                                return;
-                            }
-
-                            // test with hardcoded values for 1969-03-20 (tequvah)
-                            var finalyhvhyear = 5972;
-                            var finalyhvhmonth = 1;
-                            var finalyhvhday = 1;
-                            var finalportal = 4;
-                            var finaldayofweek = 4; // thursday
-                            var finalweek = 1;
-                            var finaldayofyear = 1;
-                            var feast = "tequvah"; // force feast for testing
-
-                            console.log("test values - year: " + finalyhvhyear + ", month: " + finalyhvhmonth + ", day: " + finalyhvhday + ", feast: " + feast);
-
-                            var formattedday = "day " + finaldayofyear + " of 364";
-                            var formattedweek = "week " + finalweek + " of 52";
-                            var formattedweekday = "day " + finaldayofweek;
-
-                            // ensure heading and feast always appear for testing
-                            var resultHTML = '<h2 style="text-transform: lowercase; font-variant: small-caps;">yhvh\'s set-apart date of birth</h2>' +
-                                '<p style="text-transform: lowercase; font-variant: small-caps;"><b>yhvh year</b>: ' + finalyhvhyear + '</p>' +
-                                '<p style="text-transform: lowercase; font-variant: small-caps;"><b>month</b>: ' + finalyhvhmonth + '</p>' +
-                                '<p style="text-transform: lowercase; font-variant: small-caps;"><b>day</b>: ' + finalyhvhday + '</p>' +
-                                '<p style="text-transform: lowercase; font-variant: small-caps;"><b>day of the week</b>: ' + formattedweekday + '</p>' +
-                                '<p style="text-transform: lowercase; font-variant: small-caps;"><b>day of 364</b>: ' + formattedday + '</p>' +
-                                '<p style="text-transform: lowercase; font-variant: small-caps;"><b>week of 52</b>: ' + formattedweek + '</p>' +
-                                '<p style="text-transform: lowercase; font-variant: small-caps;"><b>portal</b>: ' + finalportal + '</p>' +
-                                '<p style="text-transform: lowercase; font-variant: small-caps;"><b>feast day</b>: ' + feast + '</p>' +
-                                '<p style="text-transform: lowercase; font-variant: small-caps;"><b>halal-yah!</b></p>';
-
-                            console.log("result html: " + resultHTML); // debug the html string
-                            resultDiv.innerHTML = resultHTML;
-                            console.log("inline script: result displayed");
-                        } catch (error) {
-                            console.error("calculation error: " + error.message);
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log("inline script: dom content loaded");
+            var calculatebtn = document.getElementById('calculatebtn');
+            if (calculatebtn) {
+                calculatebtn.onclick = function() {
+                    console.log("inline script: calculate button clicked");
+                    var resultDiv = document.getElementById('result');
+                    try {
+                        console.log("starting calculation");
+                        var birthdateinput = document.getElementById('birthdate').value;
+                        if (!birthdateinput) {
                             resultDiv.innerHTML = '<h2 style="text-transform: lowercase; font-variant: small-caps;">yhvh\'s set-apart date of birth</h2>' +
-                                '<p style="text-transform: lowercase; font-variant: small-caps;">an error occurred: ' + error.message + '</p>' +
-                                '<p style="text-transform: lowercase; font-variant: small-caps;"><b>halal-yah!</b></p>';
+                                '<p style="text-transform: lowercase; font-variant: small-caps;">please enter a valid date.</p>';
+                            return;
                         }
-                    };
-                } else {
-                    console.error("inline script: calculate button not found");
-                }
+                        var birthdate = new Date(birthdateinput + 'T00:00:00Z');
+                        if (isNaN(birthdate) || birthdate > new Date()) {
+                            resultDiv.innerHTML = '<h2 style="text-transform: lowercase; font-variant: small-caps;">yhvh\'s set-apart date of birth</h2>' +
+                                '<p style="text-transform: lowercase; font-variant: small-caps;">please enter a valid past date.</p>';
+                            return;
+                        }
 
-                var downloadbtn = document.getElementById('downloadbtn');
-                if (downloadbtn) {
-                    downloadbtn.onclick = function() {
-                        console.log("inline script: download button clicked");
-                        if (window.jspdf && window.jspdf.jsPDF) {
-                            var doc = new window.jspdf.jsPDF();
-                            var resulttext = document.getElementById('result').innerText;
-                            doc.setFontSize(12);
-                            doc.text(resulttext, 10, 10);
-                            doc.save('yhvh_set-apart_date.pdf');
-                            console.log("inline script: pdf downloaded");
-                        } else {
-                            console.error("inline script: jspdf not loaded");
-                            alert("pdf library not loaded. please check your internet connection and try again.");
+                        // use calendardata for pre-set values
+                        var calendardata = [
+                            {date: '1969-05-06', yhvhyear: 5972, yhvhmonth: 2, yhvhday: 18, portal: 5, dayofweek: 2, week: 8, dayofyear: 48},
+                            {date: '1969-07-07', yhvhyear: 5973, yhvhmonth: 7, yhvhday: 9, portal: 3, dayofweek: 2, week: 28, dayofyear: 191},
+                            {date: '2021-05-11', yhvhyear: 6022, yhvhmonth: 2, yhvhday: 18, portal: 5, dayofweek: 2, week: 8, dayofyear: 48},
+                            {date: '2003-01-02', yhvhyear: 6004, yhvhmonth: 10, yhvhday: 4, portal: 1, dayofweek: 5, week: 40, dayofyear: 279},
+                            {date: '2008-03-27', yhvhyear: 6009, yhvhmonth: 1, yhvhday: 7, portal: 4, dayofweek: 5, week: 1, dayofyear: 7}
+                        ];
+
+                        var birthdatestring = birthdate.toISOString().split('T')[0];
+                        var match = null;
+                        for (var j = 0; j < calendardata.length; j++) {
+                            if (calendardata[j].date === birthdatestring) {
+                                match = calendardata[j];
+                                break;
+                            }
                         }
-                    };
-                } else {
-                    console.error("inline script: download button not found");
-                }
-            });
-        })();
+
+                        var finalyhvhyear = match ? match.yhvhyear : 0;
+                        var finalyhvhmonth = match ? match.yhvhmonth : 0;
+                        var finalyhvhday = match ? match.yhvhday : 0;
+                        var finalportal = match ? match.portal : 0;
+                        var finaldayofweek = match ? match.dayofweek : 0;
+                        var finalweek = match ? match.week : 0;
+                        var finaldayofyear = match ? match.dayofyear : 0;
+                        var feast = ""; // no feast for now, to be determined later
+
+                        console.log("matched data - year: " + finalyhvhyear + ", month: " + finalyhvhmonth + ", day: " + finalyhvhday);
+
+                        var formattedday = "day " + finaldayofyear + " of 364";
+                        var formattedweek = "week " + finalweek + " of 52";
+                        var formattedweekday = "day " + finaldayofweek;
+
+                        var resultHTML = '<h2 style="text-transform: lowercase; font-variant: small-caps;">yhvh\'s set-apart date of birth</h2>' +
+                            '<p style="text-transform: lowercase; font-variant: small-caps;"><b>yhvh year</b>: ' + finalyhvhyear + '</p>' +
+                            '<p style="text-transform: lowercase; font-variant: small-caps;"><b>month</b>: ' + finalyhvhmonth + '</p>' +
+                            '<p style="text-transform: lowercase; font-variant: small-caps;"><b>day</b>: ' + finalyhvhday + '</p>' +
+                            '<p style="text-transform: lowercase; font-variant: small-caps;"><b>day of the week</b>: ' + formattedweekday + '</p>' +
+                            '<p style="text-transform: lowercase; font-variant: small-caps;"><b>day of 364</b>: ' + formattedday + '</p>' +
+                            '<p style="text-transform: lowercase; font-variant: small-caps;"><b>week of 52</b>: ' + formattedweek + '</p>' +
+                            '<p style="text-transform: lowercase; font-variant: small-caps;"><b>portal</b>: ' + finalportal + '</p>';
+                        if (feast !== "") {
+                            resultHTML += '<p style="text-transform: lowercase; font-variant: small-caps;"><b>feast day</b>: ' + feast + '</p>';
+                        }
+                        resultHTML += '<p style="text-transform: lowercase; font-variant: small-caps;"><b>halal-yah!</b></p>';
+
+                        console.log("final html: " + resultHTML);
+                        resultDiv.innerHTML = resultHTML;
+                        console.log("inline script: result displayed");
+                    } catch (error) {
+                        console.error("calculation error: " + error.message);
+                        resultDiv.innerHTML = '<h2 style="text-transform: lowercase; font-variant: small-caps;">yhvh\'s set-apart date of birth</h2>' +
+                            '<p style="text-transform: lowercase; font-variant: small-caps;">error: ' + error.message + '</p>' +
+                            '<p style="text-transform: lowercase; font-variant: small-caps;"><b>halal-yah!</b></p>';
+                    }
+                };
+            } else {
+                console.error("inline script: calculate button not found");
+            }
+        });
     </script>
 </body>
 </html>
