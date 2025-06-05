@@ -157,7 +157,7 @@
                             var formattedweek = "week " + finalweek + " of 52";
                             var formattedweekday = "day " + finaldayofweek;
 
-                            // ensure heading and basic output
+                            // ensure heading and feast always appear for testing
                             var resultHTML = '<h2 style="text-transform: lowercase; font-variant: small-caps;">yhvh\'s set-apart date of birth</h2>' +
                                 '<p style="text-transform: lowercase; font-variant: small-caps;"><b>yhvh year</b>: ' + finalyhvhyear + '</p>' +
                                 '<p style="text-transform: lowercase; font-variant: small-caps;"><b>month</b>: ' + finalyhvhmonth + '</p>' +
@@ -165,12 +165,11 @@
                                 '<p style="text-transform: lowercase; font-variant: small-caps;"><b>day of the week</b>: ' + formattedweekday + '</p>' +
                                 '<p style="text-transform: lowercase; font-variant: small-caps;"><b>day of 364</b>: ' + formattedday + '</p>' +
                                 '<p style="text-transform: lowercase; font-variant: small-caps;"><b>week of 52</b>: ' + formattedweek + '</p>' +
-                                '<p style="text-transform: lowercase; font-variant: small-caps;"><b>portal</b>: ' + finalportal + '</p>';
-                            if (feast !== "") {
-                                resultHTML += '<p style="text-transform: lowercase; font-variant: small-caps;"><b>feast day</b>: ' + feast + '</p>';
-                            }
-                            resultHTML += '<p style="text-transform: lowercase; font-variant: small-caps;"><b>halal-yah!</b></p>';
+                                '<p style="text-transform: lowercase; font-variant: small-caps;"><b>portal</b>: ' + finalportal + '</p>' +
+                                '<p style="text-transform: lowercase; font-variant: small-caps;"><b>feast day</b>: ' + feast + '</p>' +
+                                '<p style="text-transform: lowercase; font-variant: small-caps;"><b>halal-yah!</b></p>';
 
+                            console.log("result html: " + resultHTML); // debug the html string
                             resultDiv.innerHTML = resultHTML;
                             console.log("inline script: result displayed");
                         } catch (error) {
