@@ -1,18 +1,20 @@
-console.log("script.js loaded successfully");
+console.log("script.js: script loading started");
 
 let currentchart = null;
 
 function calculatescripturaldate() {
-    console.log("calculatescripturaldate function called");
+    console.log("script.js: calculatescripturaldate function called");
     try {
-        const birthdateinput = document.getelementbyid('birthdate').value;
+        const birthdateinput = document.getElementById('birthdate').value;
         if (!birthdateinput) {
-            document.getelementbyid('result').innerhtml = "please enter a valid date.";
+            console.log("script.js: no birthdate input provided");
+            document.getElementById('result').innerHTML = "please enter a valid date.";
             return;
         }
         const birthdate = new Date(birthdateinput);
         if (isNaN(birthdate) || birthdate > new Date()) {
-            document.getelementbyid('result').innerhtml = "please enter a valid past date.";
+            console.log("script.js: invalid or future birthdate");
+            document.getElementById('result').innerHTML = "please enter a valid past date.";
             return;
         }
 
@@ -107,37 +109,45 @@ function calculatescripturaldate() {
             <p style="text-transform: lowercase; font-variant: small-caps;"><b>portal</b>: ${match.portal}</p>
             <p style="text-transform: lowercase; font-variant: small-caps;"><b>halal-yah!</b></p>
         `;
+        console.log("script.js: result displayed successfully");
 
     } catch (error) {
-        console.error("calculation error:", error);
+        console.error("script.js: calculation error:", error);
         document.getElementById('result').innerHTML = "an error occurred while calculating. please check the console for details.";
     }
 }
 
 function downloadpdf() {
+    console.log("script.js: downloadpdf function called");
     try {
-        const { jspdf } = window.jspdf;
-        const doc = new jspdf();
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
         const resulttext = document.getElementById('result').innerText;
         doc.setFontSize(12);
         doc.text(resulttext, 10, 10);
         doc.save('yhvh_set-apart_date.pdf');
+        console.log("script.js: pdf downloaded successfully");
     } catch (error) {
-        console.error("pdf download error:", error);
+        console.error("script.js: pdf download error:", error);
         alert("failed to download pdf. please check the console for details.");
     }
 }
 
-// add event listener for calculate button as a fallback
+// add event listener for calculate button
 document.addEventListener('DOMContentLoaded', function() {
-    console.log("dom content loaded, adding event listener for calculate button");
+    console.log("script.js: dom content loaded, adding event listener for calculate button");
     const calculatebtn = document.getElementById('calculatebtn');
     if (calculatebtn) {
         calculatebtn.addEventListener('click', function() {
-            console.log("calculate button clicked via event listener");
+            console.log("script.js: calculate button clicked via event listener");
             calculatescripturaldate();
         });
     } else {
+        console.error("script.js: calculate button not found in dom");
+    }
+});
+
+console.log("script.js: script loading completed");
         console.error("calculate button not found in dom");
     }
 });
