@@ -205,6 +205,7 @@
                         else if (yhvhmonth == 7 && yhvhday == 22) feast = "simcha torah";
                         else if (dayofweek == 7) feast = "shabbath week " + week;
 
+                        // Use calendardata only for pre-set values, not to override feast
                         var calendardata = [
                             {date: '1969-05-06', yhvhyear: 5972, yhvhmonth: 2, yhvhday: 18, portal: 5, dayofweek: 2, week: 8, dayofyear: 48},
                             {date: '1969-07-07', yhvhyear: 5973, yhvhmonth: 7, yhvhday: 9, portal: 3, dayofweek: 2, week: 28, dayofyear: 191},
@@ -221,22 +222,43 @@
                                 break;
                             }
                         }
-                        if (!match) {
-                            match = { yhvhyear: yhvhyear, yhvhmonth: yhvhmonth, yhvhday: yhvhday, portal: portal, dayofweek: dayofweek, week: week, dayofyear: daysinyear };
+                        var finalyhvhyear = match ? match.yhvhyear : yhvhyear;
+                        var finalyhvhmonth = match ? match.yhvhmonth : yhvhmonth;
+                        var finalyhvhday = match ? match.yhvhday : yhvhday;
+                        var finalportal = match ? match.portal : portal;
+                        var finaldayofweek = match ? match.dayofweek : dayofweek;
+                        var finalweek = match ? match.week : week;
+                        var finaldayofyear = match ? match.dayofyear : daysinyear;
+
+                        // Keep calculated feast unless overridden by specific data
+                        if (match && !feast) {
+                            if (finalyhvhmonth == 1 && finalyhvhday == 1) feast = "tequvah";
+                            else if (finalyhvhmonth == 1 && finalyhvhday == 10) feast = "picking the lamb";
+                            else if (finalyhvhmonth == 1 && finalyhvhday == 14) feast = "pesach";
+                            else if (finalyhvhmonth == 1 && finalyhvhday >= 15 && finalyhvhday <= 21) feast = "foub day " + (finalyhvhday - 14);
+                            else if (finalyhvhmonth == 1 && finalyhvhday == 26) feast = "foff";
+                            else if (finalyhvhmonth == 3 && finalyhvhday == 15) feast = "shavuot";
+                            else if (finalyhvhmonth == 5 && finalyhvhday == 3) feast = "fonw";
+                            else if (finalyhvhmonth == 6 && finalyhvhday == 22) feast = "fono";
+                            else if (finalyhvhmonth == 7 && finalyhvhday == 1) feast = "yom teruah";
+                            else if (finalyhvhmonth == 7 && finalyhvhday == 10) feast = "yom kippur";
+                            else if (finalyhvhmonth == 7 && finalyhvhday >= 15 && finalyhvhday <= 21) feast = "fot day " + (finalyhvhday - 14);
+                            else if (finalyhvhmonth == 7 && finalyhvhday == 22) feast = "simcha torah";
+                            else if (finaldayofweek == 7) feast = "shabbath week " + finalweek;
                         }
 
-                        var formattedday = "day " + match.dayofyear + " of 364";
-                        var formattedweek = "week " + match.week + " of 52";
-                        var formattedweekday = "day " + match.dayofweek;
+                        var formattedday = "day " + finaldayofyear + " of 364";
+                        var formattedweek = "week " + finalweek + " of 52";
+                        var formattedweekday = "day " + finaldayofweek;
 
                         var resultHTML = '<h2 style="text-transform: lowercase; font-variant: small-caps;">yhvh\'s set-apart date of birth</h2>' +
-                            '<p style="text-transform: lowercase; font-variant: small-caps;"><b>yhvh year</b>: ' + match.yhvhyear + '</p>' +
-                            '<p style="text-transform: lowercase; font-variant: small-caps;"><b>month</b>: ' + match.yhvhmonth + '</p>' +
-                            '<p style="text-transform: lowercase; font-variant: small-caps;"><b>day</b>: ' + match.yhvhday + '</p>' +
+                            '<p style="text-transform: lowercase; font-variant: small-caps;"><b>yhvh year</b>: ' + finalyhvhyear + '</p>' +
+                            '<p style="text-transform: lowercase; font-variant: small-caps;"><b>month</b>: ' + finalyhvhmonth + '</p>' +
+                            '<p style="text-transform: lowercase; font-variant: small-caps;"><b>day</b>: ' + finalyhvhday + '</p>' +
                             '<p style="text-transform: lowercase; font-variant: small-caps;"><b>day of the week</b>: ' + formattedweekday + '</p>' +
                             '<p style="text-transform: lowercase; font-variant: small-caps;"><b>day of 364</b>: ' + formattedday + '</p>' +
                             '<p style="text-transform: lowercase; font-variant: small-caps;"><b>week of 52</b>: ' + formattedweek + '</p>' +
-                            '<p style="text-transform: lowercase; font-variant: small-caps;"><b>portal</b>: ' + match.portal + '</p>';
+                            '<p style="text-transform: lowercase; font-variant: small-caps;"><b>portal</b>: ' + finalportal + '</p>';
                         if (feast) {
                             resultHTML += '<p style="text-transform: lowercase; font-variant: small-caps;"><b>feast</b>: ' + feast + '</p>';
                         }
