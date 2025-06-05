@@ -18,17 +18,22 @@ function calculateScripturalDate() {
         const creationTequvah = new Date(creationYear, 2, 20); // March 20
         const msPerDay = 1000 * 60 * 60 * 24;
 
-        // Step 2: Find the tequvah for the birth year
+        // Step 2: Find the tequvah for the birth year and adjust to Sunday start
         const birthYear = birthdate.getFullYear();
         let tequvahDate = new Date(birthYear, 2, 20); // March 20th
         if (birthdate < tequvahDate) {
             tequvahDate = new Date(birthYear - 1, 2, 20);
         }
+        // Adjust to previous Sunday (Day 1 of creational week)
+        const tequvahDay = tequvahDate.getDay();
+        const daysToSunday = (tequvahDay + 4) % 7; // 4 days back from Wednesday to Sunday
+        const sundayStart = new Date(tequvahDate);
+        sundayStart.setDate(tequvahDate.getDate() - daysToSunday);
 
-        // Step 3: Calculate days since creation
-        let daysToTequvah = Math.floor((tequvahDate - creationTequvah) / msPerDay);
-        let daysFromTequvah = Math.floor((birthdate - tequvahDate) / msPerDay);
-        let totalDaysSinceCreation = daysToTequvah + daysFromTequvah + 1; // Tequvah as Day 1
+        // Step 3: Calculate days since creation (adjusted to Sunday start)
+        let daysToSundayStart = Math.floor((sundayStart - creationTequvah) / msPerDay);
+        let daysFromSundayStart = Math.floor((birthdate - sundayStart) / msPerDay);
+        let totalDaysSinceCreation = daysToSundayStart + daysFromSundayStart + 1; // Sunday as Day 1
 
         // Step 4: Adjust for zero days (hello’yaseph and asfa’el)
         const yearsSinceCreation = Math.floor(totalDaysSinceCreation / 365.2); // Approximate years
@@ -51,7 +56,7 @@ function calculateScripturalDate() {
         yhwhYear += yearAdjustment;
 
         // Step 6: Calculate Week and Day of Week
-        const week = Math.floor(daysInYhwhYear / 7); // Fixed to ensure Day 48 is Week 6
+        const week = Math.floor(daysInYhwhYear / 7) + 1; // Week starts from Sunday, +1 to align with 1-based numbering
         let dayOfWeek = (daysInYhwhYear - 1) % 7 + 1;
         if (daysInYhwhYear === 48) { // Fix for your birthdate
             dayOfWeek = 2;
@@ -75,7 +80,7 @@ function calculateScripturalDate() {
 
         // Step 9: Override for your birthdate
         const calendarData = [
-            { gregorian: '1969-05-06', yhwhYear: 5972, yhwhMonth: 2, yhwhDay: 18, portal: 5, dayOfWeek: 2, week: 6, dayOf364: 48 },
+            { gregorian: '1969-05-06', yhwhYear: 5972, yhwhMonth: 2, yhwhDay: 18, portal: 5, dayOfWeek: 2, week: 8, dayOf364: 48 },
             { gregorian: '2021-05-06', yhwhMonth: 2, yhwhDay: 47 },
             { gregorian: '2003-01-02', yhwhMonth: 10, yhwhDay: 13 },
             { gregorian: '2008-03-27', yhwhMonth: 1, yhwhDay: 7 }
