@@ -1,9 +1,8 @@
 console.log("script.js: script loading started");
 
-let currentchart = null;
-
 function calculatescripturaldate() {
     console.log("script.js: calculatescripturaldate function called");
+    alert("calculate button clicked! script is working.");
     try {
         const birthdateinput = document.getElementById('birthdate').value;
         if (!birthdateinput) {
@@ -134,8 +133,8 @@ function downloadpdf() {
 }
 
 // add event listener for calculate button
-document.addEventListener('DOMContentLoaded', function() {
-    console.log("script.js: dom content loaded, adding event listener for calculate button");
+window.onload = function() {
+    console.log("script.js: window.onload, adding event listener for calculate button");
     const calculatebtn = document.getElementById('calculatebtn');
     if (calculatebtn) {
         calculatebtn.addEventListener('click', function() {
@@ -145,9 +144,6 @@ document.addEventListener('DOMContentLoaded', function() {
     } else {
         console.error("script.js: calculate button not found in dom");
     }
-});
+};
 
 console.log("script.js: script loading completed");
-        console.error("calculate button not found in dom");
-    }
-});
