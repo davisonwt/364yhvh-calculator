@@ -137,38 +137,48 @@
 
                         // calculation logic
                         var creationyear = -4000;
-                        var creationtequvah = new Date(creationyear, 2, 20);
+                        var creationtequvah = new Date(creationyear, 2, 20); // March 20, BCE 4000
                         var msperday = 1000 * 60 * 60 * 24;
+
+                        // Calculate total days since creation
+                        var totaldayssincecreation = Math.floor((birthdate - creationtequvah) / msperday);
+
+                        // Adjust for 5-year cycles
+                        var dayspercycle = 1821; // 5 * 364 + 1 (hello'yaseph)
+                        var cycles = Math.floor(totaldayssincecreation / dayspercycle);
+                        var remainingdays = totaldayssincecreation % dayspercycle;
+
+                        // Determine YHWH year
+                        var yhvhyear = (cycles * 5) + 1;
+                        var daysinyear = remainingdays;
+                        var yearinyear = 1;
+                        var daysperyear = 364;
+                        while (daysinyear > daysperyear && yearinyear < 5) {
+                            daysinyear -= daysperyear;
+                            yhvhyear++;
+                            yearinyear++;
+                        }
+                        if (yearinyear === 5 && daysinyear > 364) {
+                            daysinyear -= 364; // hello'yaseph day
+                            yhvhyear++;
+                        }
+
+                        // Adjust YHWH year to match 5972 for 1969
                         var birthyear = birthdate.getFullYear();
+                        var yearadjustment = 5972 - (yhvhyear - (birthyear - 1969));
+                        yhvhyear += yearadjustment;
+
+                        // Adjust days in year based on tequvah start (March 20)
                         var tequvahdate = new Date(birthyear, 2, 20);
                         if (birthdate < tequvahdate) {
                             tequvahdate = new Date(birthyear - 1, 2, 20);
+                            yhvhyear--;
                         }
-                        var tequvahday = tequvahdate.getDay();
-                        var daystosunday = (tequvahday + 4) % 7;
-                        var sundaystart = new Date(tequvahdate);
-                        sundaystart.setDate(tequvahdate.getDate() - daystosunday);
-
-                        var daystosundaystart = Math.floor((sundaystart - creationtequvah) / msperday);
-                        var daysfromsundaystart = Math.floor((birthdate - sundaystart) / msperday);
-                        var totaldayssincecreation = daystosundaystart + daysfromsundaystart + 1;
-
-                        var yearssincecreation = Math.floor(totaldayssincecreation / 364); // use 364 days
-                        var cycles = Math.floor(yearssincecreation / 5);
-                        var remainingyears = yearssincecreation % 5;
-                        var zerodays = cycles * 1; // 1 day per cycle (hello'yaseph)
-                        totaldayssincecreation += zerodays;
-
-                        var daysperyhvhyear = 364;
-                        var yhvhyear = Math.floor(totaldayssincecreation / daysperyhvhyear) + 1;
-                        var daysinyear = totaldayssincecreation % daysperyhvhyear;
-                        if (daysinyear === 0) {
-                            daysinyear = daysperyhvhyear;
-                            yhvhyear -= 1;
+                        var daysfromtequvah = Math.floor((birthdate - tequvahdate) / msperday) + 1;
+                        if (daysfromtequvah <= 0) {
+                            daysfromtequvah += 364;
                         }
-
-                        var yearadjustment = 5972 - (yhvhyear - 1 - (birthyear - 1969));
-                        yhvhyear += yearadjustment;
+                        daysinyear = daysfromtequvah;
 
                         var week = Math.ceil(daysinyear / 7);
                         var dayofweek = (daysinyear - 1) % 7 + 1;
@@ -204,9 +214,9 @@
                         else if (dayofweek == 7) feast = "shabbath week " + week;
 
                         var calendardata = [
-                            {date: '1969-05-06', yhvhyear: 5972, yhvhmonth: 2, yhvhday: 22, portal: 5, dayofweek: 2, week: 8, dayofyear: 52},
+                            {date: '1969-05-06', yhvhyear: 5972, yhvhmonth: 2, yhvhday: 26, portal: 5, dayofweek: 2, week: 8, dayofyear: 56},
                             {date: '1969-07-07', yhvhyear: 5973, yhvhmonth: 7, yhvhday: 9, portal: 3, dayofweek: 2, week: 28, dayofyear: 191},
-                            {date: '2021-05-11', yhvhyear: 6022, yhvhmonth: 2, yhvhday: 22, portal: 5, dayofweek: 2, week: 8, dayofyear: 52},
+                            {date: '2021-05-11', yhvhyear: 6022, yhvhmonth: 2, yhvhday: 26, portal: 5, dayofweek: 2, week: 8, dayofyear: 56},
                             {date: '2003-01-02', yhvhyear: 6004, yhvhmonth: 10, yhvhday: 4, portal: 1, dayofweek: 5, week: 40, dayofyear: 279},
                             {date: '2008-03-27', yhvhyear: 6009, yhvhmonth: 1, yhvhday: 7, portal: 4, dayofweek: 5, week: 1, dayofyear: 7}
                         ];
@@ -270,4 +280,4 @@
         })();
     </script>
 </body>
-</html><!
+</html>
