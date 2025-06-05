@@ -102,6 +102,7 @@ function calculateScripturalDate() {
             <p><b>day of 364</b>: ${formattedDay}</p>
             <p><b>week of 52</b>: ${formattedWeek}</p>
             <p><b>portal</b>: ${match.portal}</p>
+            <p><b>halal-yah!</b></p>
         `;
 
     } catch (error) {
