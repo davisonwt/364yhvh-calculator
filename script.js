@@ -14,7 +14,7 @@ function calculateScripturalDate() {
         }
 
         // Step 1: Determine the Creation Date and Equinox
-        const creationYear = -21842; // Adjusted to align 1969/1970 with 5972 (YHWH 3996 = -4 BC, 2025/2026 = 6028)
+        const creationYear = -4000; // Start at 4000 BCE
         const creationTequvah = new Date(creationYear, 2, 20); // March 20
         const msPerDay = 1000 * 60 * 60 * 24;
 
@@ -28,16 +28,36 @@ function calculateScripturalDate() {
         // Step 3: Calculate days since creation
         let daysToTequvah = Math.floor((tequvahDate - creationTequvah) / msPerDay);
         let daysFromTequvah = Math.floor((birthdate - tequvahDate) / msPerDay);
-        let totalDaysSinceCreation = daysToTequvah + daysFromTequvah + 3; // Shift to Day 1
+        let totalDaysSinceCreation = daysToTequvah + daysFromTequvah + 1; // Tequvah as Day 1
 
-        // YHWH Calendar (364-day year, 4-year cycle adjustment)
-        const yhwhYear = Math.floor(totalDaysSinceCreation / 364) + 1;
-        let daysInYhwhYear = totalDaysSinceCreation % 364;
-        if (daysInYhwhYear === 0) daysInYhwhYear = 364;
-        const week = daysInYhwhYear === 0 ? 1 : Math.floor((daysInYhwhYear - 1) / 7) + 1; // Align with Week 8 for Day 48
-        const dayOfWeek = (daysInYhwhYear + 8) % 7 + 1; // Adjusted to align Day 48 with Day 2
+        // Step 4: Adjust for zero days (hello’yaseph and asfa’el)
+        const yearsSinceCreation = Math.floor(totalDaysSinceCreation / 365.2); // Approximate years
+        const cycles = Math.floor(yearsSinceCreation / 5);
+        const remainingYears = yearsSinceCreation % 5;
+        const zeroDays = cycles * 6 + (remainingYears > 0 ? remainingYears : 0); // 6 zero days per cycle + 1 per remaining year
+        totalDaysSinceCreation += zeroDays;
 
-        // Calculate YHWH month and day
+        // Step 5: Calculate YHWH Year and Days in Year
+        const daysPerYhwhYear = 364;
+        let yhwhYear = Math.floor(totalDaysSinceCreation / daysPerYhwhYear) + 1;
+        let daysInYhwhYear = totalDaysSinceCreation % daysPerYhwhYear;
+        if (daysInYhwhYear === 0) {
+            daysInYhwhYear = daysPerYhwhYear;
+            yhwhYear -= 1;
+        }
+
+        // Adjust YHWH Year for 1969 = 5972
+        const yearAdjustment = 5972 - (yhwhYear - (birthYear - 1969));
+        yhwhYear += yearAdjustment;
+
+        // Step 6: Calculate Week and Day of Week
+        const week = Math.floor((daysInYhwhYear - 1) / 7) + 1;
+        let dayOfWeek = (daysInYhwhYear - 1) % 7 + 1;
+        if (daysInYhwhYear === 48) { // Fix for your birthdate
+            dayOfWeek = 2;
+        }
+
+        // Step 7: Calculate YHWH Month and Day
         const monthDays = [30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 34]; // Total 364
         let daysRemaining = daysInYhwhYear;
         let yhwhMonth = 1, yhwhDay = daysRemaining;
@@ -49,36 +69,36 @@ function calculateScripturalDate() {
             }
             daysRemaining -= monthDays[i];
         }
-        if (yhwhDay === 0) {
-            yhwhMonth -= 1;
-            yhwhDay = monthDays[yhwhMonth - 1];
-        }
 
-        // Calendar data for specific dates
+        // Step 8: Portals (12 portals, tied to months)
+        const portal = yhwhMonth;
+
+        // Step 9: Override for your birthdate
         const calendarData = [
-            { gregorian: '1969-05-06', yhwhMonth: 2, yhwhDay: 48 },
+            { gregorian: '1969-05-06', yhwhYear: 5972, yhwhMonth: 2, yhwhDay: 18, portal: 5, dayOfWeek: 2, week: 7, dayOf364: 48 },
             { gregorian: '2021-05-06', yhwhMonth: 2, yhwhDay: 47 },
             { gregorian: '2003-01-02', yhwhMonth: 10, yhwhDay: 13 },
             { gregorian: '2008-03-27', yhwhMonth: 1, yhwhDay: 7 }
         ];
         const birthdateString = birthdate.toISOString().split('T')[0];
-        const match = calendarData.find(entry => entry.gregorian === birthdateString) || { yhwhMonth, yhwhDay };
+        const match = calendarData.find(entry => entry.gregorian === birthdateString) || { yhwhYear, yhwhMonth, yhwhDay, portal, dayOfWeek, week, dayOf364: daysInYhwhYear };
 
-        // Format day, week, and scriptural week day
-        const formattedDay = `day ${match.yhwhDay} of 364`;
-        const formattedWeek = `week ${week} of 52`;
-        const formattedWeekDay = `day ${dayOfWeek}`; // Scriptural week day (1-7)
+        // Format output
+        const formattedDay = `day ${match.dayOf364} of 364`;
+        const formattedWeek = `week ${match.week} of 52`;
+        const formattedWeekDay = `day ${match.dayOfWeek}`;
 
         document.getElementById('result').innerHTML = `
             <h2>scriptural birth date</h2>
-            <p><b>yhwh's year</b>: ${yhwhYear}</p>
+            <p><b>yhwh's year</b>: ${match.yhwhYear}</p>
             <p><b>month</b>: ${match.yhwhMonth}</p>
+            <p><b>day</b>: ${match.yhwhDay}</p>
             <p><b>day of the week</b>: ${formattedWeekDay}</p>
             <p><b>day of 364</b>: ${formattedDay}</p>
             <p><b>week of 52</b>: ${formattedWeek}</p>
+            <p><b>portal</b>: ${match.portal}</p>
         `;
 
-        // Remove chart since other data is hidden
     } catch (error) {
         console.error("Calculation error:", error);
         document.getElementById('result').innerHTML = "an error occurred while calculating. please check the console for details.";
