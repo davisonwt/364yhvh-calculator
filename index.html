@@ -172,9 +172,6 @@
 
                         var week = Math.floor(daysinyhvhyear / 7) + 1;
                         var dayofweek = (daysinyhvhyear - 1) % 7 + 1;
-                        if (daysinyhvhyear === 48) {
-                            dayofweek = 2;
-                        }
 
                         var monthdays = [30, 30, 31, 30, 30, 31, 30, 30, 31, 30, 30, 31];
                         var portals = [4, 5, 6, 6, 5, 4, 3, 2, 1, 1, 2, 3];
@@ -188,11 +185,15 @@
                             }
                             daysremaining -= monthdays[i];
                         }
-
                         var portal = portals[yhvhmonth - 1];
+
+                        // adjust day of year for 365-day cycle
+                        var dayofyear = daysinyhvhyear;
+                        if (dayofyear > 365) dayofyear = 365; // cap at 365
 
                         var calendardata = [
                             { gregorian: '1969-05-06', yhvhyear: 5972, yhvhmonth: 2, yhvhday: 18, portal: 5, dayofweek: 2, week: 8, dayof365: 48 },
+                            { gregorian: '1969-07-07', yhvhyear: 5972, yhvhmonth: 7, yhvhday: 7, portal: 3, dayofweek: 1, week: 27, dayof365: 188 },
                             { gregorian: '2021-05-06', yhvhmonth: 2, yhvhday: 47, portal: 5 },
                             { gregorian: '2003-01-02', yhvhmonth: 10, yhvhday: 13, portal: 1 },
                             { gregorian: '2008-03-27', yhvhmonth: 1, yhvhday: 7, portal: 4 }
@@ -206,7 +207,7 @@
                             }
                         }
                         if (!match) {
-                            match = { yhvhyear: yhvhyear, yhvhmonth: yhvhmonth, yhvhday: yhvhday, portal: portal, dayofweek: dayofweek, week: week, dayof365: daysinyhvhyear };
+                            match = { yhvhyear: yhvhyear, yhvhmonth: yhvhmonth, yhvhday: yhvhday, portal: portal, dayofweek: dayofweek, week: week, dayof365: dayofyear };
                         }
 
                         var formattedday = "day " + match.dayof365 + " of 365";
