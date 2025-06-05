@@ -135,30 +135,28 @@
                             return;
                         }
 
-                        // calculation logic
-                        var creationyear = -4000;
-                        var creationtequvah = new Date(creationyear, 2, 20); // March 20, BCE 4000
+                        // calculation logic based on 5-year cycle
+                        var creationtequvah = new Date('4000-03-20T00:00:00Z'); // March 20, BCE 4000
                         var msperday = 1000 * 60 * 60 * 24;
+                        var dayspercycle = 1821; // 5 * 364 + 1 (hello'yaseph)
 
-                        // Calculate total days since creation
+                        // Calculate total days since creation tequvah
                         var totaldayssincecreation = Math.floor((birthdate - creationtequvah) / msperday);
 
-                        // Adjust for 5-year cycles
-                        var dayspercycle = 1821; // 5 * 364 + 1 (hello'yaseph)
+                        // Determine cycles and remaining days
                         var cycles = Math.floor(totaldayssincecreation / dayspercycle);
                         var remainingdays = totaldayssincecreation % dayspercycle;
 
-                        // Determine YHWH year
+                        // Determine YHWH year within cycle
                         var yhvhyear = (cycles * 5) + 1;
-                        var daysinyear = remainingdays;
-                        var yearinyear = 1;
-                        var daysperyear = 364;
-                        while (daysinyear > daysperyear && yearinyear < 5) {
-                            daysinyear -= daysperyear;
+                        var daysinyear = remainingdays + 1; // +1 to include the start day
+                        var yearincycle = 1;
+                        while (daysinyear > 364 && yearincycle < 5) {
+                            daysinyear -= 364;
                             yhvhyear++;
-                            yearinyear++;
+                            yearincycle++;
                         }
-                        if (yearinyear === 5 && daysinyear > 364) {
+                        if (yearincycle === 5 && daysinyear > 364) {
                             daysinyear -= 364; // hello'yaseph day
                             yhvhyear++;
                         }
@@ -168,21 +166,7 @@
                         var yearadjustment = 5972 - (yhvhyear - (birthyear - 1969));
                         yhvhyear += yearadjustment;
 
-                        // Adjust days in year based on tequvah start (March 20)
-                        var tequvahdate = new Date(birthyear, 2, 20);
-                        if (birthdate < tequvahdate) {
-                            tequvahdate = new Date(birthyear - 1, 2, 20);
-                            yhvhyear--;
-                        }
-                        var daysfromtequvah = Math.floor((birthdate - tequvahdate) / msperday) + 1 - 8; // Adjust by 8 days to match Excel (day 48)
-                        if (daysfromtequvah <= 0) {
-                            daysfromtequvah += 364;
-                        }
-                        daysinyear = daysfromtequvah;
-
-                        var week = Math.ceil(daysinyear / 7);
-                        var dayofweek = (daysinyear - 1) % 7 + 1;
-
+                        // Calculate day of year and month/day
                         var monthdays = [30, 30, 31, 30, 30, 31, 30, 30, 31, 30, 30, 31];
                         var portals = [4, 5, 6, 6, 5, 4, 3, 2, 1, 1, 2, 3];
                         var daysremaining = daysinyear;
@@ -197,19 +181,27 @@
                         }
                         var portal = portals[yhvhmonth - 1];
 
+                        // Calculate day of week (starting Wednesday = 1 for BCE 4000-03-20)
+                        var baseweekday = 3; // Wednesday for BCE 4000-03-20
+                        var totalweeks = Math.floor(totaldayssincecreation / 7);
+                        var dayofweek = ((totalweeks * 7 + (totaldayssincecreation % 7) + baseweekday - 1) % 7) + 1;
+
+                        // Calculate week of year
+                        var week = Math.ceil(daysinyear / 7);
+
                         // Determine feast day
                         var feast = "";
                         if (yhvhmonth == 1 && yhvhday == 1) feast = "tequvah";
                         else if (yhvhmonth == 1 && yhvhday == 10) feast = "picking the lamb";
                         else if (yhvhmonth == 1 && yhvhday == 14) feast = "pesach";
                         else if (yhvhmonth == 1 && yhvhday >= 15 && yhvhday <= 21) feast = "foub day " + (yhvhday - 14);
-                        else if (yhvhmonth == 1 && yhvhday == 26) feast = "feast of first fruits";
+                        else if (yhvhmonth == 1 && yhvhday == 26) feast = "foff";
                         else if (yhvhmonth == 3 && yhvhday == 15) feast = "shavuot";
-                        else if (yhvhmonth == 5 && yhvhday == 3) feast = "feast of new wine";
-                        else if (yhvhmonth == 6 && yhvhday == 22) feast = "feast of new oil";
+                        else if (yhvhmonth == 5 && yhvhday == 3) feast = "fonw";
+                        else if (yhvhmonth == 6 && yhvhday == 22) feast = "fono";
                         else if (yhvhmonth == 7 && yhvhday == 1) feast = "yom teruah";
                         else if (yhvhmonth == 7 && yhvhday == 10) feast = "yom kippur";
-                        else if (yhvhmonth == 7 && yhvhday >= 15 && yhvhday <= 21) feast = "feast of tabernacles day " + (yhvhday - 14);
+                        else if (yhvhmonth == 7 && yhvhday >= 15 && yhvhday <= 21) feast = "fot day " + (yhvhday - 14);
                         else if (yhvhmonth == 7 && yhvhday == 22) feast = "simcha torah";
                         else if (dayofweek == 7) feast = "shabbath week " + week;
 
