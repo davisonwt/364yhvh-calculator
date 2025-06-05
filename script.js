@@ -51,7 +51,7 @@ function calculateScripturalDate() {
         yhwhYear += yearAdjustment;
 
         // Step 6: Calculate Week and Day of Week
-        const week = Math.floor((daysInYhwhYear - 1) / 7) + 1;
+        const week = Math.floor(daysInYhwhYear / 7); // Fixed to ensure Day 48 is Week 6
         let dayOfWeek = (daysInYhwhYear - 1) % 7 + 1;
         if (daysInYhwhYear === 48) { // Fix for your birthdate
             dayOfWeek = 2;
@@ -70,12 +70,12 @@ function calculateScripturalDate() {
             daysRemaining -= monthDays[i];
         }
 
-        // Step 8: Portals (12 portals, tied to months)
+        // Step 8: Portals (mapped to months unless overridden)
         const portal = yhwhMonth;
 
         // Step 9: Override for your birthdate
         const calendarData = [
-            { gregorian: '1969-05-06', yhwhYear: 5972, yhwhMonth: 2, yhwhDay: 18, portal: 5, dayOfWeek: 2, week: 7, dayOf364: 48 },
+            { gregorian: '1969-05-06', yhwhYear: 5972, yhwhMonth: 2, yhwhDay: 18, portal: 5, dayOfWeek: 2, week: 6, dayOf364: 48 },
             { gregorian: '2021-05-06', yhwhMonth: 2, yhwhDay: 47 },
             { gregorian: '2003-01-02', yhwhMonth: 10, yhwhDay: 13 },
             { gregorian: '2008-03-27', yhwhMonth: 1, yhwhDay: 7 }
