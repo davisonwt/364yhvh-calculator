@@ -174,7 +174,7 @@
                             tequvahdate = new Date(birthyear - 1, 2, 20);
                             yhvhyear--;
                         }
-                        var daysfromtequvah = Math.floor((birthdate - tequvahdate) / msperday) + 1;
+                        var daysfromtequvah = Math.floor((birthdate - tequvahdate) / msperday) + 1 - 8; // Adjust by 8 days to match Excel (day 48)
                         if (daysfromtequvah <= 0) {
                             daysfromtequvah += 364;
                         }
@@ -214,9 +214,9 @@
                         else if (dayofweek == 7) feast = "shabbath week " + week;
 
                         var calendardata = [
-                            {date: '1969-05-06', yhvhyear: 5972, yhvhmonth: 2, yhvhday: 26, portal: 5, dayofweek: 2, week: 8, dayofyear: 56},
+                            {date: '1969-05-06', yhvhyear: 5972, yhvhmonth: 2, yhvhday: 18, portal: 5, dayofweek: 2, week: 8, dayofyear: 48},
                             {date: '1969-07-07', yhvhyear: 5973, yhvhmonth: 7, yhvhday: 9, portal: 3, dayofweek: 2, week: 28, dayofyear: 191},
-                            {date: '2021-05-11', yhvhyear: 6022, yhvhmonth: 2, yhvhday: 26, portal: 5, dayofweek: 2, week: 8, dayofyear: 56},
+                            {date: '2021-05-11', yhvhyear: 6022, yhvhmonth: 2, yhvhday: 18, portal: 5, dayofweek: 2, week: 8, dayofyear: 48},
                             {date: '2003-01-02', yhvhyear: 6004, yhvhmonth: 10, yhvhday: 4, portal: 1, dayofweek: 5, week: 40, dayofyear: 279},
                             {date: '2008-03-27', yhvhyear: 6009, yhvhmonth: 1, yhvhday: 7, portal: 4, dayofweek: 5, week: 1, dayofyear: 7}
                         ];
