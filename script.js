@@ -1,6 +1,7 @@
 let currentchart = null;
 
 function calculatescripturaldate() {
+    console.log("calculatescripturaldate function called");
     try {
         const birthdateinput = document.getelementbyid('birthdate').value;
         if (!birthdateinput) {
