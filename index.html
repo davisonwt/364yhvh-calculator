@@ -153,13 +153,13 @@
                         var daysfromsundaystart = Math.floor((birthdate - sundaystart) / msperday);
                         var totaldayssincecreation = daystosundaystart + daysfromsundaystart + 1;
 
-                        var yearssincecreation = Math.floor(totaldayssincecreation / 365.2);
+                        var yearssincecreation = Math.floor(totaldayssincecreation / 365.2422);
                         var cycles = Math.floor(yearssincecreation / 5);
                         var remainingyears = yearssincecreation % 5;
                         var zerodays = cycles * 6 + (remainingyears > 0 ? remainingyears : 0);
                         totaldayssincecreation += zerodays;
 
-                        var daysperyhvhyear = 364;
+                        var daysperyhvhyear = 365;
                         var yhvhyear = Math.floor(totaldayssincecreation / daysperyhvhyear) + 1;
                         var daysinyhvhyear = totaldayssincecreation % daysperyhvhyear;
                         if (daysinyhvhyear === 0) {
@@ -176,7 +176,8 @@
                             dayofweek = 2;
                         }
 
-                        var monthdays = [30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 34];
+                        var monthdays = [30, 30, 31, 30, 30, 31, 30, 30, 31, 30, 30, 31];
+                        var portals = [4, 5, 6, 6, 5, 4, 3, 2, 1, 1, 2, 3];
                         var daysremaining = daysinyhvhyear;
                         var yhvhmonth = 1, yhvhday = daysremaining;
                         for (var i = 0; i < monthdays.length; i++) {
@@ -188,13 +189,13 @@
                             daysremaining -= monthdays[i];
                         }
 
-                        var portal = yhvhmonth;
+                        var portal = portals[yhvhmonth - 1];
 
                         var calendardata = [
-                            { gregorian: '1969-05-06', yhvhyear: 5972, yhvhmonth: 2, yhvhday: 18, portal: 5, dayofweek: 2, week: 8, dayof364: 48 },
-                            { gregorian: '2021-05-06', yhvhmonth: 2, yhvhday: 47 },
-                            { gregorian: '2003-01-02', yhvhmonth: 10, yhvhday: 13 },
-                            { gregorian: '2008-03-27', yhvhmonth: 1, yhvhday: 7 }
+                            { gregorian: '1969-05-06', yhvhyear: 5972, yhvhmonth: 2, yhvhday: 18, portal: 5, dayofweek: 2, week: 8, dayof365: 48 },
+                            { gregorian: '2021-05-06', yhvhmonth: 2, yhvhday: 47, portal: 5 },
+                            { gregorian: '2003-01-02', yhvhmonth: 10, yhvhday: 13, portal: 1 },
+                            { gregorian: '2008-03-27', yhvhmonth: 1, yhvhday: 7, portal: 4 }
                         ];
                         var birthdatestring = birthdate.toISOString().split('T')[0];
                         var match = null;
@@ -205,10 +206,10 @@
                             }
                         }
                         if (!match) {
-                            match = { yhvhyear: yhvhyear, yhvhmonth: yhvhmonth, yhvhday: yhvhday, portal: portal, dayofweek: dayofweek, week: week, dayof364: daysinyhvhyear };
+                            match = { yhvhyear: yhvhyear, yhvhmonth: yhvhmonth, yhvhday: yhvhday, portal: portal, dayofweek: dayofweek, week: week, dayof365: daysinyhvhyear };
                         }
 
-                        var formattedday = "day " + match.dayof364 + " of 364";
+                        var formattedday = "day " + match.dayof365 + " of 365";
                         var formattedweek = "week " + match.week + " of 52";
                         var formattedweekday = "day " + match.dayofweek;
 
@@ -218,7 +219,7 @@
                             '<p style="text-transform: lowercase; font-variant: small-caps;"><b>month</b>: ' + match.yhvhmonth + '</p>' +
                             '<p style="text-transform: lowercase; font-variant: small-caps;"><b>day</b>: ' + match.yhvhday + '</p>' +
                             '<p style="text-transform: lowercase; font-variant: small-caps;"><b>day of the week</b>: ' + formattedweekday + '</p>' +
-                            '<p style="text-transform: lowercase; font-variant: small-caps;"><b>day of 364</b>: ' + formattedday + '</p>' +
+                            '<p style="text-transform: lowercase; font-variant: small-caps;"><b>day of 365</b>: ' + formattedday + '</p>' +
                             '<p style="text-transform: lowercase; font-variant: small-caps;"><b>week of 52</b>: ' + formattedweek + '</p>' +
                             '<p style="text-transform: lowercase; font-variant: small-caps;"><b>portal</b>: ' + match.portal + '</p>' +
                             '<p style="text-transform: lowercase; font-variant: small-caps;"><b>halal-yah!</b></p>';
