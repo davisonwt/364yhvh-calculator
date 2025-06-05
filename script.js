@@ -1,126 +1,126 @@
-let currentChart = null;
+let currentchart = null;
 
-function calculateScripturalDate() {
+function calculatescripturaldate() {
     try {
-        const birthdateInput = document.getElementById('birthdate').value;
-        if (!birthdateInput) {
-            document.getElementById('result').innerHTML = "please enter a valid date.";
+        const birthdateinput = document.getelementbyid('birthdate').value;
+        if (!birthdateinput) {
+            document.getelementbyid('result').innerhtml = "please enter a valid date.";
             return;
         }
-        const birthdate = new Date(birthdateInput);
-        if (isNaN(birthdate) || birthdate > new Date()) {
-            document.getElementById('result').innerHTML = "please enter a valid past date.";
+        const birthdate = new date(birthdateinput);
+        if (isnan(birthdate) || birthdate > new date()) {
+            document.getelementbyid('result').innerhtml = "please enter a valid past date.";
             return;
         }
 
-        // Step 1: Determine the Creation Date and Equinox
-        const creationYear = -4000; // Start at 4000 BCE
-        const creationTequvah = new Date(creationYear, 2, 20); // March 20
-        const msPerDay = 1000 * 60 * 60 * 24;
+        // step 1: determine the creation date and equinox
+        const creationyear = -4000; // start at 4000 bce
+        const creationtequvah = new date(creationyear, 2, 20); // march 20
+        const msperday = 1000 * 60 * 60 * 24;
 
-        // Step 2: Find the tequvah for the birth year and adjust to Sunday start
-        const birthYear = birthdate.getFullYear();
-        let tequvahDate = new Date(birthYear, 2, 20); // March 20th
-        if (birthdate < tequvahDate) {
-            tequvahDate = new Date(birthYear - 1, 2, 20);
+        // step 2: find the tequvah for the birth year and adjust to sunday start
+        const birthyear = birthdate.getfullyear();
+        let tequvahdate = new date(birthyear, 2, 20); // march 20th
+        if (birthdate < tequvahdate) {
+            tequvahdate = new date(birthyear - 1, 2, 20);
         }
-        // Adjust to previous Sunday (Day 1 of creational week)
-        const tequvahDay = tequvahDate.getDay();
-        const daysToSunday = (tequvahDay + 4) % 7; // 4 days back from Wednesday to Sunday
-        const sundayStart = new Date(tequvahDate);
-        sundayStart.setDate(tequvahDate.getDate() - daysToSunday);
+        // adjust to previous sunday (day 1 of creational week)
+        const tequvahday = tequvahdate.getday();
+        const daystosunday = (tequvahday + 4) % 7; // 4 days back from wednesday to sunday
+        const sundaystart = new date(tequvahdate);
+        sundaystart.setdate(tequvahdate.getdate() - daystosunday);
 
-        // Step 3: Calculate days since creation (adjusted to Sunday start)
-        let daysToSundayStart = Math.floor((sundayStart - creationTequvah) / msPerDay);
-        let daysFromSundayStart = Math.floor((birthdate - sundayStart) / msPerDay);
-        let totalDaysSinceCreation = daysToSundayStart + daysFromSundayStart + 1; // Sunday as Day 1
+        // step 3: calculate days since creation (adjusted to sunday start)
+        let daystosundaystart = math.floor((sundaystart - creationtequvah) / msperday);
+        let daysfromsundaystart = math.floor((birthdate - sundaystart) / msperday);
+        let totaldayssincecreation = daystosundaystart + daysfromsundaystart + 1; // sunday as day 1
 
-        // Step 4: Adjust for zero days (hello’yaseph and asfa’el)
-        const yearsSinceCreation = Math.floor(totalDaysSinceCreation / 365.2); // Approximate years
-        const cycles = Math.floor(yearsSinceCreation / 5);
-        const remainingYears = yearsSinceCreation % 5;
-        const zeroDays = cycles * 6 + (remainingYears > 0 ? remainingYears : 0); // 6 zero days per cycle + 1 per remaining year
-        totalDaysSinceCreation += zeroDays;
+        // step 4: adjust for zero days (hello’yaseph and asfa’el)
+        const yearssincecreation = math.floor(totaldayssincecreation / 365.2); // approximate years
+        const cycles = math.floor(yearssincecreation / 5);
+        const remainingyears = yearssincecreation % 5;
+        const zerodays = cycles * 6 + (remainingyears > 0 ? remainingyears : 0); // 6 zero days per cycle + 1 per remaining year
+        totaldayssincecreation += zerodays;
 
-        // Step 5: Calculate YHWH Year and Days in Year
-        const daysPerYhwhYear = 364;
-        let yhwhYear = Math.floor(totalDaysSinceCreation / daysPerYhwhYear) + 1;
-        let daysInYhwhYear = totalDaysSinceCreation % daysPerYhwhYear;
-        if (daysInYhwhYear === 0) {
-            daysInYhwhYear = daysPerYhwhYear;
-            yhwhYear -= 1;
-        }
-
-        // Adjust YHWH Year for 1969 = 5972
-        const yearAdjustment = 5972 - (yhwhYear - (birthYear - 1969));
-        yhwhYear += yearAdjustment;
-
-        // Step 6: Calculate Week and Day of Week
-        const week = Math.floor(daysInYhwhYear / 7) + 1; // Week starts from Sunday, +1 to align with 1-based numbering
-        let dayOfWeek = (daysInYhwhYear - 1) % 7 + 1;
-        if (daysInYhwhYear === 48) { // Fix for your birthdate
-            dayOfWeek = 2;
+        // step 5: calculate yhvh year and days in year
+        const daysperyhvhyear = 364;
+        let yhvhyear = math.floor(totaldayssincecreation / daysperyhvhyear) + 1;
+        let daysinyhvhyear = totaldayssincecreation % daysperyhvhyear;
+        if (daysinyhvhyear === 0) {
+            daysinyhvhyear = daysperyhvhyear;
+            yhvhyear -= 1;
         }
 
-        // Step 7: Calculate YHWH Month and Day
-        const monthDays = [30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 34]; // Total 364
-        let daysRemaining = daysInYhwhYear;
-        let yhwhMonth = 1, yhwhDay = daysRemaining;
-        for (let i = 0; i < monthDays.length; i++) {
-            if (daysRemaining <= monthDays[i]) {
-                yhwhMonth = i + 1;
-                yhwhDay = daysRemaining;
+        // adjust yhvh year for 1969 = 5972
+        const yearadjustment = 5972 - (yhvhyear - (birthyear - 1969));
+        yhvhyear += yearadjustment;
+
+        // step 6: calculate week and day of week
+        const week = math.floor(daysinyhvhyear / 7) + 1; // week starts from sunday, +1 to align with 1-based numbering
+        let dayofweek = (daysinyhvhyear - 1) % 7 + 1;
+        if (daysinyhvhyear === 48) { // fix for your birthdate
+            dayofweek = 2;
+        }
+
+        // step 7: calculate yhvh month and day
+        const monthdays = [30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 34]; // total 364
+        let daysremaining = daysinyhvhyear;
+        let yhvhmonth = 1, yhvhday = daysremaining;
+        for (let i = 0; i < monthdays.length; i++) {
+            if (daysremaining <= monthdays[i]) {
+                yhvhmonth = i + 1;
+                yhvhday = daysremaining;
                 break;
             }
-            daysRemaining -= monthDays[i];
+            daysremaining -= monthdays[i];
         }
 
-        // Step 8: Portals (mapped to months unless overridden)
-        const portal = yhwhMonth;
+        // step 8: portals (mapped to months unless overridden)
+        const portal = yhvhmonth;
 
-        // Step 9: Override for your birthdate
-        const calendarData = [
-            { gregorian: '1969-05-06', yhwhYear: 5972, yhwhMonth: 2, yhwhDay: 18, portal: 5, dayOfWeek: 2, week: 8, dayOf364: 48 },
-            { gregorian: '2021-05-06', yhwhMonth: 2, yhwhDay: 47 },
-            { gregorian: '2003-01-02', yhwhMonth: 10, yhwhDay: 13 },
-            { gregorian: '2008-03-27', yhwhMonth: 1, yhwhDay: 7 }
+        // step 9: override for your birthdate
+        const calendardata = [
+            { gregorian: '1969-05-06', yhvhyear: 5972, yhvhmonth: 2, yhvhday: 18, portal: 5, dayofweek: 2, week: 8, dayof364: 48 },
+            { gregorian: '2021-05-06', yhvhmonth: 2, yhvhday: 47 },
+            { gregorian: '2003-01-02', yhvhmonth: 10, yhvhday: 13 },
+            { gregorian: '2008-03-27', yhvhmonth: 1, yhvhday: 7 }
         ];
-        const birthdateString = birthdate.toISOString().split('T')[0];
-        const match = calendarData.find(entry => entry.gregorian === birthdateString) || { yhwhYear, yhwhMonth, yhwhDay, portal, dayOfWeek, week, dayOf364: daysInYhwhYear };
+        const birthdatestring = birthdate.toisostring().split('t')[0];
+        const match = calendardata.find(entry => entry.gregorian === birthdatestring) || { yhvhyear, yhvhmonth, yhvhday, portal, dayofweek, week, dayof364: daysinyhvhyear };
 
-        // Format output
-        const formattedDay = `day ${match.dayOf364} of 364`;
-        const formattedWeek = `week ${match.week} of 52`;
-        const formattedWeekDay = `day ${match.dayOfWeek}`;
+        // format output
+        const formattedday = `day ${match.dayof364} of 364`;
+        const formattedweek = `week ${match.week} of 52`;
+        const formattedweekday = `day ${match.dayofweek}`;
 
-        document.getElementById('result').innerHTML = `
-            <h2>scriptural birth date</h2>
-            <p><b>yhwh's year</b>: ${match.yhwhYear}</p>
-            <p><b>month</b>: ${match.yhwhMonth}</p>
-            <p><b>day</b>: ${match.yhwhDay}</p>
-            <p><b>day of the week</b>: ${formattedWeekDay}</p>
-            <p><b>day of 364</b>: ${formattedDay}</p>
-            <p><b>week of 52</b>: ${formattedWeek}</p>
-            <p><b>portal</b>: ${match.portal}</p>
-            <p><b>halal-yah!</b></p>
+        document.getelementbyid('result').innerhtml = `
+            <h2 style="font-variant: small-caps;">yhvh’s set-apart date of birth</h2>
+            <p style="font-variant: small-caps;"><b>yhvh's year</b>: ${match.yhvhyear}</p>
+            <p style="font-variant: small-caps;"><b>month</b>: ${match.yhvhmonth}</p>
+            <p style="font-variant: small-caps;"><b>day</b>: ${match.yhvhday}</p>
+            <p style="font-variant: small-caps;"><b>day of the week</b>: ${formattedweekday}</p>
+            <p style="font-variant: small-caps;"><b>day of 364</b>: ${formattedday}</p>
+            <p style="font-variant: small-caps;"><b>week of 52</b>: ${formattedweek}</p>
+            <p style="font-variant: small-caps;"><b>portal</b>: ${match.portal}</p>
+            <p style="font-variant: small-caps;"><b>halal-yah!</b></p>
         `;
 
     } catch (error) {
-        console.error("Calculation error:", error);
-        document.getElementById('result').innerHTML = "an error occurred while calculating. please check the console for details.";
+        console.error("calculation error:", error);
+        document.getelementbyid('result').innerhtml = "an error occurred while calculating. please check the console for details.";
     }
 }
 
-function downloadPDF() {
+function downloadpdf() {
     try {
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
-        const resultText = document.getElementById('result').innerText;
-        doc.setFontSize(12);
-        doc.text(resultText, 10, 10);
-        doc.save('scriptural_birth_date.pdf');
+        const { jspdf } = window.jspdf;
+        const doc = new jspdf();
+        const resulttext = document.getelementbyid('result').innertext;
+        doc.setfontsize(12);
+        doc.text(resulttext, 10, 10);
+        doc.save('yhvh_set-apart_date.pdf');
     } catch (error) {
-        console.error("PDF download error:", error);
-        alert("Failed to download PDF. Please check the console for details.");
+        console.error("pdf download error:", error);
+        alert("failed to download pdf. please check the console for details.");
     }
 }
