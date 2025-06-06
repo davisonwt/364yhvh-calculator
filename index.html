@@ -186,7 +186,7 @@
             }
 
             function updatedays(year, month) {
-                var daysinmonth = new Date(year, month - 1, 0).getDate();
+                var daysinmonth = new Date(year, month, 0).getDate();
                 var days = Array.from({length: daysinmonth}, (_, i) => i + 1);
                 if (selectedday > daysinmonth) selectedday = daysinmonth;
                 populatewheelitems(dayitems, days);
@@ -289,7 +289,7 @@
                     try {
                         var year = getselectedvalue(yearitems, years, 'year');
                         var month = getselectedvalue(monthitems, months, 'month');
-                        var daysInMonth = new Date(year, month - 1, 0).getDate();
+                        var daysInMonth = new Date(year, month, 0).getDate();
                         var day = getselectedvalue(dayitems, Array.from({length: daysInMonth}, (_, i) => i + 1), 'day');
                         if (!year || !month || !day) {
                             resultDiv.innerHTML = '<h2>yhvh\'s set-apart date of birth</h2>' +
@@ -307,23 +307,52 @@
                             return;
                         }
 
-                        // Reference: 2025-03-20 is YHVH year 6028, cycle 5
+                        // Reference: 2025-03-20 is YHVH year 6028
                         var referenceDate = new Date(2025, 2, 20); // March 20, 2025
                         var referenceYHVHYear = 6028;
                         var daysPerYHVHYear = 364;
 
+                        // Calculate days difference
                         var timeDiff = birthdate - referenceDate;
                         var daysDiff = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+                        console.log(`days difference from reference date: ${daysDiff}`);
+
+                        // Calculate YHVH year and day of year
                         var totalYHVHYears = Math.floor(daysDiff / daysPerYHVHYear);
                         var finalyhvhyear = referenceYHVHYear + totalYHVHYears;
-                        var dayofyear = (daysDiff % daysPerYHVHYear) || daysPerYHVHYear;
+                        var dayofyear = daysDiff % daysPerYHVHYear;
+                        if (dayofyear <= 0) {
+                            dayofyear += daysPerYHVHYear;
+                            finalyhvhyear -= 1; // Adjust year if before reference date
+                        }
+                        console.log(`total yhvhyears: ${totalYHVHYears}`);
+                        console.log(`day of yhvhyear: ${dayofyear}`);
 
-                        // Adjust for 5-year cycle (yyc)
-                        var cycleStartYear = 6024; // Assuming 6024 is cycle 1
-                        var cyclePosition = ((finalyhvhyear - cycleStartYear) % 5) || 5;
-                        var yyc = cyclePosition;
+                        // Adjust for 5-year cycle (yyc) starting from year 1
+                        var cyclePosition = finalyhvhyear % 5;
+                        var yyc = cyclePosition === 0 ? 5 : cyclePosition;
+                        console.log(`yyc: ${yyc}`);
 
-                        // Month lengths from spreadsheet (approximate)
+                        // Determine if it's a Sabbath year
+                        var isSabbathYear = finalyhvhyear % 7 === 0 ? "yes" : "no";
+
+                        // Determine if it's a Jubilee year
+                        var isJubilee = "no";
+                        // Special case for 6027-6028
+                        if (finalyhvhyear === 6027 && finalyhvhmonth >= 7) {
+                            isJubilee = "yes (started in month 7)";
+                        } else if (finalyhvhyear === 6028 && finalyhvhmonth <= 7) {
+                            isJubilee = "yes (ends in month 7)";
+                        }
+                        // General rule: Jubilee every 50 years
+                        var lastJubileeStartYear = Math.floor(finalyhvhyear / 50) * 50;
+                        if (lastJubileeStartYear === finalyhvhyear && finalyhvhmonth >= 7) {
+                            isJubilee = "yes (started in month 7)";
+                        } else if (lastJubileeStartYear + 1 === finalyhvhyear && finalyhvhmonth <= 7) {
+                            isJubilee = "yes (ends in month 7)";
+                        }
+
+                        // Month lengths from spreadsheet
                         var monthLengths = [31, 30, 31, 30, 31, 30, 31, 30, 31, 30, 31, 29];
                         var remainingDays = dayofyear;
                         var monthIndex = 0;
@@ -333,27 +362,45 @@
                         }
                         var finalyhvhmonth = monthIndex + 1;
                         var finalyhvhday = remainingDays;
+                        console.log(`calculated yhvmonth: ${finalyhvhmonth}, yhvday: ${finalyhvhday}`);
 
-                        // Day of week (2025-03-20 is Thursday = 4)
+                        // Day of week (2025-03-20 is Thursday = ywd 4)
                         var startDayOfWeek = 4; // Thursday
-                        var finaldayofweek = ((daysDiff - 1) % 7 + startDayOfWeek - 1) % 7 + 1;
+                        var finaldayofweek = ((daysDiff + startDayOfWeek - 1) % 7 + 7) % 7 + 1;
+                        console.log(`calculated day of week: ${finaldayofweek}`);
 
                         // Week of 52
-                        var finalweek = Math.floor((dayofyear - 1) / 7) + 1;
+                        var finalweek = Math.ceil(dayofyear / 7);
+                        console.log(`calculated week: ${finalweek}`);
 
-                        // Portals (map from spreadsheet, placeholder)
-                        var finalportal = (dayofyear === 4) ? 1 : (dayofyear === 14) ? 2 : (dayofyear === 15) ? 3 : 1; // Adjust with exact rules
+                        // Portals based on month
+                        var portalsByMonth = [4, 5, 6, 6, 5, 4, 3, 2, 1, 1, 2, 3];
+                        var finalportal = portalsByMonth[finalyhvhmonth - 1];
 
-                        // Feasts (map from spreadsheet)
-                        var feasts = {
-                            '2025-03-20': 'tequvah',
-                            '2025-04-02': 'pesach',
-                            '2025-06-02': 'shavuot',
-                            '2025-09-18': 'yom teruah',
-                            '2025-09-27': 'yom kippur',
-                            '2025-10-02': 'simcha torah'
+                        // Feasts based on s&sc
+                        var feastsByDayOfYear = {
+                            1: 'tequvah',
+                            14: 'pesach',
+                            15: '1 foub',
+                            16: '2 foub',
+                            17: '3 foub',
+                            18: '4 foub',
+                            19: '5 foub',
+                            20: '6 foub',
+                            21: '7 foub',
+                            75: 'shavuot',
+                            183: 'yom teruah',
+                            192: 'yom kippur',
+                            197: 'fot 1',
+                            198: 'fot 2',
+                            199: 'fot 3',
+                            200: 'fot 4',
+                            201: 'fot 5',
+                            202: 'fot 6',
+                            203: 'fot 7',
+                            204: 'simcha torah'
                         };
-                        var feast = feasts[birthdateinput] || 'none';
+                        var feast = feastsByDayOfYear[dayofyear] || 'none';
 
                         var resultHTML = '<h2>yhvh\'s set-apart date of birth</h2>' +
                                         '<p><b>yhvh’s set-apart day of your creation:</b> ' + yyc + '/' + finalyhvhmonth + '/' + finalyhvhday + '</p>' +
@@ -364,9 +411,14 @@
                                         '<p><b>yhvh week count</b>: week ' + finalweek + ' of 52</p>' +
                                         '<p><b>yhvh portals</b>: ' + finalportal + '</p>' +
                                         '<p><b>yhvh feasts</b>: ' + feast + '</p>' +
+                                        '<p><b>yhvh year</b>: ' + finalyhvhyear + '</p>' +
+                                        '<p><b>yhvh 5-year cycle (yyc)</b>: ' + yyc + '</p>' +
+                                        '<p><b>sabbath year</b>: ' + isSabbathYear + '</p>' +
+                                        '<p><b>jubilee year</b>: ' + isJubilee + '</p>' +
                                         '<p><b>gregorian day of your birth:</b> ' + year + '/' + month + '/' + day + '</p>' +
                                         '<p><b>halal-yah!</b></p>';
 
+                        console.log(`final html: ${resultHTML}`);
                         resultDiv.innerHTML = resultHTML;
                     } catch (error) {
                         console.error("calculation error: " + error.message);
