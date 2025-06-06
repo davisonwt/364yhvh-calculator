@@ -71,6 +71,7 @@
             font-size: 16px;
             scroll-snap-align: center;
             cursor: pointer; /* indicate clickability */
+            user-select: none; /* prevent text selection */
         }
         .wheel::before, .wheel::after {
             content: '';
@@ -79,7 +80,7 @@
             right: 0;
             height: 50px;
             background: linear-gradient(to bottom, rgba(255, 255, 255, 0.9), transparent);
-            pointer-events: none;
+            pointer-events: none; /* ensure gradients don’t block clicks */
         }
         .wheel::before {
             top: 0;
@@ -100,8 +101,11 @@
         }
         .wheel-label {
             font-size: 14px;
-            margin-top: 5px;
+            margin-top: 15px; /* increased spacing */
             text-align: center;
+            width: 30%;
+            margin-left: 1%;
+            margin-right: 1%;
         }
         button {
             padding: 10px 20px;
@@ -196,13 +200,21 @@
             function attachclickhandlers(wheel) {
                 var items = wheel.querySelectorAll('.wheel-item');
                 items.forEach(function(item, index) {
-                    item.addEventListener('click', function() {
+                    // remove existing listeners to prevent duplicates
+                    item.removeEventListener('click', handleclick);
+                    item.removeEventListener('touchend', handleclick);
+                    item.addEventListener('click', handleclick);
+                    item.addEventListener('touchend', handleclick);
+
+                    function handleclick(e) {
+                        e.preventDefault(); // prevent default scroll behavior
+                        console.log("clicked item: " + item.textContent + " at index " + index);
                         var itemheight = 50; // matches .wheel-item height
                         wheel.scrollTo({
                             top: index * itemheight,
                             behavior: 'smooth'
                         });
-                    });
+                    }
                 });
             }
 
