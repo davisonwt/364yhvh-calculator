@@ -336,22 +336,6 @@
                         // Determine if it's a Sabbath year
                         var isSabbathYear = finalyhvhyear % 7 === 0 ? "yes" : "no";
 
-                        // Determine if it's a Jubilee year
-                        var isJubilee = "no";
-                        // Special case for 6027-6028
-                        if (finalyhvhyear === 6027 && finalyhvhmonth >= 7) {
-                            isJubilee = "yes (started in month 7)";
-                        } else if (finalyhvhyear === 6028 && finalyhvhmonth <= 7) {
-                            isJubilee = "yes (ends in month 7)";
-                        }
-                        // General rule: Jubilee every 50 years
-                        var lastJubileeStartYear = Math.floor(finalyhvhyear / 50) * 50;
-                        if (lastJubileeStartYear === finalyhvhyear && finalyhvhmonth >= 7) {
-                            isJubilee = "yes (started in month 7)";
-                        } else if (lastJubileeStartYear + 1 === finalyhvhyear && finalyhvhmonth <= 7) {
-                            isJubilee = "yes (ends in month 7)";
-                        }
-
                         // Month lengths from spreadsheet
                         var monthLengths = [31, 30, 31, 30, 31, 30, 31, 30, 31, 30, 31, 29];
                         var remainingDays = dayofyear;
@@ -363,6 +347,24 @@
                         var finalyhvhmonth = monthIndex + 1;
                         var finalyhvhday = remainingDays;
                         console.log(`calculated yhvmonth: ${finalyhvhmonth}, yhvday: ${finalyhvhday}`);
+
+                        // Determine if it's a Jubilee year (spans from 7th month of 49th year to 7th month of 50th year)
+                        var isJubilee = "no";
+                        // Check if in the 49th year of a cycle and month >= 7
+                        if (finalyhvhyear % 49 === 0 && finalyhvhmonth >= 7) {
+                            isJubilee = "yes (started in month 7 of year " + finalyhvhyear + ")";
+                        }
+                        // Check if in the 50th year of a cycle and month <= 7
+                        else if ((finalyhvhyear - 1) % 49 === 0 && finalyhvhmonth <= 7) {
+                            var jubileeStartYear = finalyhvhyear - 1;
+                            isJubilee = "yes (ends in month 7 of year " + finalyhvhyear + ", started in month 7 of year " + jubileeStartYear + ")";
+                        }
+                        // Special case for 6027-6028
+                        if (finalyhvhyear === 6027 && finalyhvhmonth >= 7) {
+                            isJubilee = "yes (special case: started in month 7 of year 6027)";
+                        } else if (finalyhvhyear === 6028 && finalyhvhmonth <= 7) {
+                            isJubilee = "yes (special case: ends in month 7 of year 6028, started in month 7 of year 6027)";
+                        }
 
                         // Day of week (2025-03-20 is Thursday = ywd 4)
                         var startDayOfWeek = 4; // Thursday
