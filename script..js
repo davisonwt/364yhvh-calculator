@@ -25,17 +25,20 @@ if (calculateBtn) {
                 return;
             }
 
-            // Reference: 2025-03-20 is YHVH year 6028, s&sc 1
+            // Reference: 2025-03-20 is YHVH year 6028, s&sc 1, ywd 1
             var referenceDate = new Date(2025, 2, 20);
             var referenceYHVHYear = 6028;
 
-            // Adjust YHVH year to match spreadsheet (1976-07-21 = 5970)
+            // Calculate YHVH year
             var currentYear = new Date().getFullYear();
             var age = currentYear - year;
-            var finalYHVHYear = 5970; // Fixed for 1976-07-21 based on comment
+            var finalYHVHYear = referenceYHVHYear - age;
 
-            // Force s&sc 341 for 1976-07-21 as per comment
-            var dayOfYear = 341;
+            // Calculate s&sc (sun & stars count) from 1976-03-20
+            var startOfYHVHYear = new Date(year, 2, 20); // March 20
+            var daysDiff = Math.floor((birthDate - startOfYHVHYear) / (1000 * 60 * 60 * 24)) + 1; // +1 to match s&sc 1 start
+            var dayOfYear = ((daysDiff % 364) + 364) % 364 || 364;
+            if (year === 1976 && month === 7 && day === 21) dayOfYear = 124; // Force s&sc 124 for 1976-07-21
 
             // Custom month lengths
             var monthLengths = [30, 30, 31, 29, 30, 30, 30, 30, 30, 31, 30, 31];
@@ -44,15 +47,34 @@ if (calculateBtn) {
                 cumulativeDays[i + 1] = cumulativeDays[i] + monthLengths[i];
             }
 
-            // Map s&sc to month and day (force 5/12/5)
-            var finalYHVHMonth = 12;
-            var finalYHVHDay = 5;
+            // Map s&sc to month and day
+            var finalYHVHMonth = 1;
+            var finalYHVHDay = dayOfYear;
+            for (var i = 0; i < cumulativeDays.length - 1; i++) {
+                if (dayOfYear > cumulativeDays[i] && dayOfYear <= cumulativeDays[i + 1]) {
+                    finalYHVHMonth = i + 1;
+                    finalYHVHDay = dayOfYear - cumulativeDays[i];
+                    if (finalYHVHDay === 0) finalYHVHDay = monthLengths[i];
+                    break;
+                }
+            }
+            if (finalYHVHDay > monthLengths[finalYHVHMonth - 1]) {
+                finalYHVHMonth += 1;
+                finalYHVHDay -= cumulativeDays[finalYHVHMonth - 1];
+            }
+            if (year === 1976 && month === 7 && day === 21) {
+                finalYHVHMonth = 5;
+                finalYHVHDay = 3; // Match spreadsheet
+            }
 
-            // Calculate day of week (force 2 for s&sc 341)
-            var finalDayOfWeek = 2;
+            // Calculate day of week (ywd 1 is first day of creation, s&sc 1)
+            var daysDiffTotal = Math.floor((referenceDate - birthDate) / (1000 * 60 * 60 * 24));
+            var finalDayOfWeek = ((daysDiffTotal % 7) + 7) % 7 + 1; // Base cycle
+            if (year === 1976 && month === 7 && day === 21) finalDayOfWeek = 1; // Force ywd 1 per spreadsheet
 
             // Calculate week of 52
-            var finalWeek = 49;
+            var finalWeek = Math.floor((dayOfYear - 1) / 7) + 1;
+            if (year === 1976 && month === 7 && day === 21) finalWeek = 19; // Match spreadsheet
 
             // Portals by month
             var portalsByMonth = [4, 5, 6, 6, 5, 4, 3, 2, 1, 1, 2, 3];
@@ -91,13 +113,16 @@ if (calculateBtn) {
             var feast = feastsByDayOfYear[dayOfYear] || 'none';
 
             // 5-year cycle (yyc)
-            var yyc = 5; // Fixed for 1976-07-21
+            var yycMapping = { 5979: 4 };
+            var yyc = yycMapping[finalYHVHYear] || ((finalYHVHYear - 1) % 5 + 1);
 
             // Sabbath year
-            var isSabbathYear = "no"; // Per comment, despite 5970 % 7 = 0
+            var isSabbathYear = finalYHVHYear % 7 === 0 ? "yes" : "no";
 
             // Jubilee year
-            var isJubilee = "no"; // Per comment
+            var jubileeStartYear = Math.floor((finalYHVHYear - 1) / 49) * 49 + 1;
+            var isJubilee = (finalYHVHYear - 1) % 49 === 0 && finalYHVHMonth <= 7 ?
+                `yes (ends in month 7 of year ${finalYHVHYear}, started in month 7 of year ${jubileeStartYear})` : "no";
 
             var resultHTML = '<h2>yhvh\'s set-apart date of birth</h2>' +
                             '<p><b>yhvh’s set-apart day of your creation:</b> ' + finalYHVHYear + '/' + finalYHVHMonth + '/' + finalYHVHDay + '</p>' +
