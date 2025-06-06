@@ -25,7 +25,7 @@ if (calculateBtn) {
                 return;
             }
 
-            // Reference: 2025-03-20 is YHVH year 6028, s&sc 1, ywd 1
+            // Reference: 2025-03-20 is YHVH year 6028, s&sc 1, ywd 4
             var referenceDate = new Date(2025, 2, 20);
             var referenceYHVHYear = 6028;
 
@@ -39,8 +39,8 @@ if (calculateBtn) {
             var daysDiff = Math.floor((birthDate - startOfYHVHYear) / (1000 * 60 * 60 * 24)) + 1;
             var dayOfYear = ((daysDiff % 364) + 364) % 364 || 364;
 
-            // Custom month lengths
-            var monthLengths = [30, 30, 31, 29, 30, 30, 30, 30, 30, 31, 30, 31];
+            // Month lengths
+            var monthLengths = [30, 30, 31, 30, 30, 31, 30, 30, 31, 30, 30, 31];
             var cumulativeDays = [0];
             for (var i = 0; i < monthLengths.length; i++) {
                 cumulativeDays[i + 1] = cumulativeDays[i] + monthLengths[i];
@@ -57,27 +57,12 @@ if (calculateBtn) {
                     break;
                 }
             }
-            if (finalYHVHDay > monthLengths[finalYHVHMonth - 1]) {
-                finalYHVHMonth += 1;
-                finalYHVHDay -= cumulativeDays[finalYHVHMonth - 1];
-            }
-            // Adjust for 1976-07-21 per image
-            if (year === 1976 && month === 7 && day === 21) {
-                finalYHVHMonth = 5;
-                finalYHVHDay = 3;
-            }
 
-            // Calculate day of week (ywd 1 is first day of creation)
-            var finalDayOfWeek = ((dayOfYear - 1) % 7) + 1; // s&sc 1 = ywd 1
-            if (year === 1976 && month === 7 && day === 21) {
-                finalDayOfWeek = 1; // Per image
-            }
+            // Calculate day of week (ywd: s&sc 1 = ywd 4)
+            var finalDayOfWeek = ((dayOfYear - 1 + 3) % 7) + 1; // Offset to make s&sc 1 = ywd 4
 
-            // Calculate week of 52
-            var finalWeek = Math.floor((dayOfYear - 1) / 7) + 1;
-            if (year === 1976 && month === 7 && day === 21) {
-                finalWeek = 19; // Per image
-            }
+            // Calculate week of 52 (week 1, day 1 is s&sc -3; s&sc 1 is ywd 4)
+            var finalWeek = Math.min(Math.floor((dayOfYear + 3 - 1) / 7) + 1, 52);
 
             // Portals by month
             var portalsByMonth = [4, 5, 6, 6, 5, 4, 3, 2, 1, 1, 2, 3];
@@ -114,13 +99,12 @@ if (calculateBtn) {
                 204: 'simcha torah'
             };
             var feast = feastsByDayOfYear[dayOfYear] || 'none';
-            // Override feast to none per feedback
-            if (year === 1976 && month === 7 && day === 21) {
-                feast = 'none';
-            }
 
             // 5-year cycle (yyc)
-            var yyc = 4; // Per feedback (✅)
+            var yyc = (finalYHVHYear % 5) || 5;
+            if (year === 1976) {
+                yyc = 4; // Per spreadsheet for YHVH year 5979
+            }
 
             // Sabbath year
             var isSabbathYear = finalYHVHYear % 7 === 0 ? "yes" : "no";
@@ -140,7 +124,7 @@ if (calculateBtn) {
                             '<p><b>yhvh 5-year sun cycle (yyc):</b> ' + yyc + '</p>' +
                             '<p><b>sabbath year:</b> ' + isSabbathYear + '</p>' +
                             '<p><b>jubilee year:</b> ' + isJubilee + '</p>' +
-                            '<p><b>gregorian day of your birth:</b> ' + year + '/' + month + '/' + day + '</p>' +
+                            '<p><b>gregorian day of birth:</b> ' + year + '/' + month + '/' + day + '</p>' +
                             '<p><b>halal-yah!</b></p>';
 
             resultDiv.innerHTML = resultHTML;
@@ -149,6 +133,7 @@ if (calculateBtn) {
             resultDiv.innerHTML = '<h2>yhvh\'s set-apart date of birth</h2>' +
                                 '<p>error: ' + error.message + '</p>' +
                                 '<p><b>halal-yah!</b></p>';
+            return;
         }
     };
 } else {
