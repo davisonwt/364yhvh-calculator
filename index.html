@@ -52,56 +52,65 @@
         }
         .wheel {
             width: 30%;
-            height: 150px;
-            overflow-y: scroll;
-            border: 1px solid #ccc;
-            border-radius: 4px;
             margin: 0 1%;
             position: relative;
-            -webkit-overflow-scrolling: touch;
-            scroll-snap-type: y mandatory;
         }
-        .wheel::-webkit-scrollbar {
-            display: none; /* hide scrollbar for cleaner look */
+        .wheel-items {
+            height: 150px; /* 50px per row x 3 rows */
+            overflow: hidden;
+            position: relative;
+        }
+        .wheel-items-inner {
+            position: absolute;
+            top: 0;
+            width: 100%;
+            transition: transform 0.3s ease;
         }
         .wheel-item {
             height: 50px;
             line-height: 50px;
             text-align: center;
             font-size: 16px;
-            scroll-snap-align: center;
-            cursor: pointer; /* indicate clickability */
-            user-select: none; /* prevent text selection */
+            opacity: 0.5; /* dim non-selected items */
         }
-        .wheel::before, .wheel::after {
-            content: '';
+        .wheel-button {
             position: absolute;
+            top: 50px; /* middle of 150px height */
             left: 0;
             right: 0;
             height: 50px;
-            background: linear-gradient(to bottom, rgba(255, 255, 255, 0.9), transparent);
-            pointer-events: none; /* ensure gradients don’t block clicks */
+            background-color: #ddd;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            z-index: 1;
+            user-select: none;
         }
-        .wheel::before {
+        .wheel-button:hover {
+            background-color: #ccc;
+        }
+        .wheel-arrow {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            cursor: pointer;
+            font-size: 20px;
+            user-select: none;
+            z-index: 2;
+        }
+        .wheel-arrow.up {
             top: 0;
         }
-        .wheel::after {
+        .wheel-arrow.down {
             bottom: 0;
-            background: linear-gradient(to top, rgba(255, 255, 255, 0.9), transparent);
-        }
-        .wheel-selection {
-            position: absolute;
-            top: 50px;
-            left: 0;
-            right: 0;
-            height: 50px;
-            border-top: 1px solid #ccc;
-            border-bottom: 1px solid #ccc;
-            pointer-events: none;
         }
         .wheel-label {
             font-size: 14px;
-            margin-top: 15px; /* increased spacing */
+            margin-top: 35px; /* further increased spacing */
             text-align: center;
             width: 30%;
             margin-left: 1%;
@@ -138,13 +147,28 @@
         <label>enter your birth date:</label>
         <div class="wheel-container">
             <div class="wheel" id="yearwheel">
-                <div class="wheel-selection"></div>
+                <div class="wheel-arrow up">▲</div>
+                <div class="wheel-items">
+                    <div class="wheel-items-inner" id="yearitems"></div>
+                </div>
+                <div class="wheel-button" id="yearbutton">2000</div>
+                <div class="wheel-arrow down">▼</div>
             </div>
             <div class="wheel" id="monthwheel">
-                <div class="wheel-selection"></div>
+                <div class="wheel-arrow up">▲</div>
+                <div class="wheel-items">
+                    <div class="wheel-items-inner" id="monthitems"></div>
+                </div>
+                <div class="wheel-button" id="monthbutton">1</div>
+                <div class="wheel-arrow down">▼</div>
             </div>
             <div class="wheel" id="daywheel">
-                <div class="wheel-selection"></div>
+                <div class="wheel-arrow up">▲</div>
+                <div class="wheel-items">
+                    <div class="wheel-items-inner" id="dayitems"></div>
+                </div>
+                <div class="wheel-button" id="daybutton">1</div>
+                <div class="wheel-arrow down">▼</div>
             </div>
         </div>
         <div class="wheel-container">
@@ -161,95 +185,102 @@
         document.addEventListener('DOMContentLoaded', function() {
             console.log("inline script: dom content loaded");
 
-            // populate wheels
-            var yearwheel = document.getElementById('yearwheel');
-            var monthwheel = document.getElementById('monthwheel');
-            var daywheel = document.getElementById('daywheel');
+            // initialize data
+            var years = Array.from({length: 126}, (_, i) => 1900 + i); // 1900 to 2025
+            var months = Array.from({length: 12}, (_, i) => i + 1); // 1 to 12
 
-            // years from 1900 to 2025
-            for (var y = 1900; y <= 2025; y++) {
-                var div = document.createElement('div');
-                div.className = 'wheel-item';
-                div.textContent = y;
-                yearwheel.appendChild(div);
+            var selectedyear = 2000;
+            var selectedmonth = 1;
+            var selectedday = 1;
+
+            var finalizedyear = null;
+            var finalizedmonth = null;
+            var finalizedday = null;
+
+            var yearitems = document.getElementById('yearitems');
+            var monthitems = document.getElementById('monthitems');
+            var dayitems = document.getElementById('dayitems');
+            var yearbutton = document.getElementById('yearbutton');
+            var monthbutton = document.getElementById('monthbutton');
+            var daybutton = document.getElementById('daybutton');
+
+            // populate wheels with all items for scrolling effect
+            function populatewheelitems(container, values) {
+                container.innerHTML = values.map(value => `<div class="wheel-item">${value}</div>`).join('');
             }
 
-            // months 1 to 12
-            for (var m = 1; m <= 12; m++) {
-                var div = document.createElement('div');
-                div.className = 'wheel-item';
-                div.textContent = m;
-                monthwheel.appendChild(div);
+            // update visible position
+            function updatewheelposition(container, index, itemheight) {
+                var transformvalue = -index * itemheight;
+                container.style.transform = `translateY(${transformvalue}px)`;
             }
 
-            // initialize days (default to 31 for now)
+            // update days based on year and month
             function updatedays(year, month) {
-                var daysinmonth = new Date(year || 2000, month || 1, 0).getDate();
-                daywheel.innerHTML = '<div class="wheel-selection"></div>';
-                for (var d = 1; d <= daysinmonth; d++) {
-                    var div = document.createElement('div');
-                    div.className = 'wheel-item';
-                    div.textContent = d;
-                    daywheel.appendChild(div);
-                }
-                // reattach click handlers to new day items
-                attachclickhandlers(daywheel);
+                var daysinmonth = new Date(year, month, 0).getDate();
+                var days = Array.from({length: daysinmonth}, (_, i) => i + 1);
+                if (selectedday > daysinmonth) selectedday = daysinmonth;
+                populatewheelitems(dayitems, days);
+                var dayindex = days.indexOf(selectedday);
+                updatewheelposition(dayitems, dayindex, 50);
+                daybutton.textContent = selectedday;
+                finalizedday = null; // reset finalized value
             }
 
-            // attach click handlers to wheel items
-            function attachclickhandlers(wheel) {
-                var items = wheel.querySelectorAll('.wheel-item');
-                items.forEach(function(item, index) {
-                    // remove existing listeners to prevent duplicates
-                    item.removeEventListener('click', handleclick);
-                    item.removeEventListener('touchend', handleclick);
-                    item.addEventListener('click', handleclick);
-                    item.addEventListener('touchend', handleclick);
+            // handle wheel updates
+            function setupwheel(container, button, values, selectedvalue, onupdate) {
+                var index = values.indexOf(selectedvalue);
+                populatewheelitems(container, values);
+                updatewheelposition(container, index, 50);
 
-                    function handleclick(e) {
-                        e.preventDefault(); // prevent default scroll behavior
-                        console.log("clicked item: " + item.textContent + " at index " + index);
-                        var itemheight = 50; // matches .wheel-item height
-                        wheel.scrollTo({
-                            top: index * itemheight,
-                            behavior: 'smooth'
-                        });
-                    }
+                var uparrow = container.parentElement.parentElement.querySelector('.wheel-arrow.up');
+                var downarrow = container.parentElement.parentElement.querySelector('.wheel-arrow.down');
+
+                uparrow.addEventListener('click', function() {
+                    index = (index > 0) ? index - 1 : values.length - 1;
+                    selectedvalue = values[index];
+                    updatewheelposition(container, index, 50);
+                    button.textContent = selectedvalue;
+                    onupdate(selectedvalue);
                 });
+
+                downarrow.addEventListener('click', function() {
+                    index = (index < values.length - 1) ? index + 1 : 0;
+                    selectedvalue = values[index];
+                    updatewheelposition(container, index, 50);
+                    button.textContent = selectedvalue;
+                    onupdate(selectedvalue);
+                });
+
+                // confirm selection on button click
+                button.addEventListener('click', function() {
+                    console.log("finalized " + button.id.replace('button', '') + ": " + selectedvalue);
+                    button.style.backgroundColor = '#bbb'; // visual feedback
+                    setTimeout(() => button.style.backgroundColor = '#ddd', 200);
+                    if (button.id === 'yearbutton') finalizedyear = selectedvalue;
+                    if (button.id === 'monthbutton') finalizedmonth = selectedvalue;
+                    if (button.id === 'daybutton') finalizedday = selectedvalue;
+                });
+
+                return selectedvalue;
             }
 
-            // get selected value from wheel
-            function getselectedvalue(wheel) {
-                var items = wheel.querySelectorAll('.wheel-item');
-                var scrolltop = wheel.scrollTop;
-                var itemheight = 50; // matches .wheel-item height
-                var index = Math.round(scrolltop / itemheight);
-                return items[index] ? items[index].textContent : null;
-            }
-
-            // update days when year or month changes
-            function updatedaysonscroll() {
-                var year = getselectedvalue(yearwheel);
-                var month = getselectedvalue(monthwheel);
-                if (year && month) {
-                    updatedays(parseInt(year), parseInt(month));
-                }
-            }
-            yearwheel.onscroll = updatedaysonscroll;
-            monthwheel.onscroll = updatedaysonscroll;
-
-            // attach click handlers to all wheels
-            attachclickhandlers(yearwheel);
-            attachclickhandlers(monthwheel);
-            attachclickhandlers(daywheel);
-
-            // initialize days
-            updatedays();
-
-            // scroll to a default value (e.g., 2000-01-01)
-            yearwheel.scrollTop = (2000 - 1900) * 50; // 2000
-            monthwheel.scrollTop = (1 - 1) * 50; // january
-            daywheel.scrollTop = (1 - 1) * 50; // 1st
+            // initialize wheels
+            selectedyear = setupwheel(yearitems, yearbutton, years, selectedyear, function(value) {
+                selectedyear = value;
+                finalizedyear = null; // reset finalized value
+                updatedays(selectedyear, selectedmonth);
+            });
+            selectedmonth = setupwheel(monthitems, monthbutton, months, selectedmonth, function(value) {
+                selectedmonth = value;
+                finalizedmonth = null; // reset finalized value
+                updatedays(selectedyear, selectedmonth);
+            });
+            updatedays(selectedyear, selectedmonth);
+            selectedday = setupwheel(dayitems, daybutton, Array.from({length: 31}, (_, i) => i + 1), selectedday, function(value) {
+                selectedday = value;
+                finalizedday = null; // reset finalized value
+            });
 
             var calculatebtn = document.getElementById('calculatebtn');
             if (calculatebtn) {
@@ -258,16 +289,22 @@
                     var resultDiv = document.getElementById('result');
                     try {
                         console.log("starting calculation");
-                        var year = getselectedvalue(yearwheel);
-                        var month = getselectedvalue(monthwheel);
-                        var day = getselectedvalue(daywheel);
+                        var year = finalizedyear || selectedyear;
+                        var month = finalizedmonth || selectedmonth;
+                        var day = finalizedday || selectedday;
                         if (!year || !month || !day) {
                             resultDiv.innerHTML = '<h2 style="text-transform: lowercase; font-variant: small-caps;">yhvh\'s set-apart date of birth</h2>' +
                                 '<p style="text-transform: lowercase; font-variant: small-caps;">please select a valid date.</p>' +
                                 '<p style="text-transform: lowercase; font-variant: small-caps;"><b>halal-yah!</b></p>';
                             return;
                         }
-                        var birthdateinput = year + '-' + month.padStart(2, '0') + '-' + day.padStart(2, '0');
+                        if (!finalizedyear || !finalizedmonth || !finalizedday) {
+                            resultDiv.innerHTML = '<h2 style="text-transform: lowercase; font-variant: small-caps;">yhvh\'s set-apart date of birth</h2>' +
+                                '<p style="text-transform: lowercase; font-variant: small-caps;">please confirm all selections by clicking the buttons.</p>' +
+                                '<p style="text-transform: lowercase; font-variant: small-caps;"><b>halal-yah!</b></p>';
+                            return;
+                        }
+                        var birthdateinput = year + '-' + month.toString().padStart(2, '0') + '-' + day.toString().padStart(2, '0');
                         console.log("input date: " + birthdateinput);
 
                         var birthdate = new Date(birthdateinput);
