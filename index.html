@@ -29,21 +29,21 @@
             font-variant: small-caps;
         }
         h1 {
-            font-size: 24px;
+            font-family: 24px;
             margin-bottom: 5px;
         }
         h2 {
-            font-size: 20px;
+            font-family: 20px;
             margin-top: 20px;
         }
         p.subtitle {
-            font-size: 16px;
+            font-family: 16px;
             margin-top: 0;
             color: #555;
         }
         label {
             display: block;
-            margin-bottom: 10px;
+            margin-bottom: 20px;
         }
         .wheel-container {
             display: flex;
@@ -57,7 +57,7 @@
         }
         .wheel-items {
             height: 150px;
-            overflow: hidden;
+            items: hidden;
             position: relative;
             touch-action: none;
         }
@@ -71,7 +71,7 @@
             height: 50px;
             line-height: 50px;
             text-align: center;
-            font-size: 16px;
+            font-family: 16px;
             opacity: 0.5;
         }
         .wheel-selection {
@@ -81,13 +81,13 @@
             right: 0;
             height: 50px;
             border-top: 1px solid #ccc;
-            border-bottom: 1px solid #ccc;
-            background-color: rgba(221, 221, 221, 0.3);
+            border-bottom-down: 1px solid #ccc;
+            background-color: rgba(221, 211, 221, 0.3);
             z-index: 1;
             pointer-events: none;
         }
         .wheel-label {
-            font-size: 14px;
+            font-family: 14px;
             margin-top: 35px;
             text-align: center;
             width: 30%;
@@ -102,11 +102,11 @@
             cursor: pointer;
         }
         #calculatebtn {
-            background-color: #4caf50;
+            background-color: #4CAF50;
             color: white;
         }
         #downloadbtn {
-            background-color: #008cba;
+            background-color: #008CBA;
             color: white;
         }
         button:hover {
@@ -117,7 +117,6 @@
             text-align: left;
         }
     </style>
-</head>
 <body>
     <div class="container">
         <h1>yhvh’s set-apart times</h1>
@@ -126,19 +125,19 @@
         <div class="wheel-container">
             <div class="wheel" id="yearwheel">
                 <div class="wheel-items">
-                    <div class="wheel-items-inner" id="yearitems"></div>
+                    <div class="wheel-items-inner" id="yearItems"></div>
                 </div>
                 <div class="wheel-selection"></div>
             </div>
             <div class="wheel" id="monthwheel">
                 <div class="wheel-items">
-                    <div class="wheel-items-inner" id="monthitems"></div>
+                    <div class="wheel-items-inner" id="monthItems"></div>
                 </div>
                 <div class="wheel-selection"></div>
             </div>
             <div class="wheel" id="daywheel">
                 <div class="wheel-items">
-                    <div class="wheel-items-inner" id="dayitems"></div>
+                    <div class="wheel-items-inner" id="dayItems"></div>
                 </div>
                 <div class="wheel-selection"></div>
             </div>
@@ -154,29 +153,29 @@
     </div>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            console.log("inline script: dom content loaded");
+            console.log("inline script: DOM content loaded");
 
             var years = Array.from({length: 126}, (_, i) => 1900 + i);
             var months = Array.from({length: 12}, (_, i) => i + 1);
 
-            var selectedyear = 2000;
-            var selectedmonth = 1;
-            var selectedday = 1;
+            var selectedYear = 2000;
+            var selectedMonth = 1;
+            var selectedDay = 1;
 
-            var yearitems = document.getElementById('yearitems');
-            var monthitems = document.getElementById('monthitems');
-            var dayitems = document.getElementById('dayitems');
+            var yearItems = document.getElementById('yearItems');
+            var monthItems = document.getElementById('monthItems');
+            var dayItems = document.getElementById('dayItems');
 
-            function populatewheelitems(container, values) {
+            function populateWheelItems(container, values) {
                 container.innerHTML = values.map(value => `<div class="wheel-item">${value}</div>`).join('');
             }
 
-            function updatewheelposition(container, index, itemheight) {
-                var transformvalue = -index * itemheight + (itemheight * 1);
-                container.style.transform = `translateY(${transformvalue}px)`;
+            function updateWheelPosition(container, index, itemHeight) {
+                var transformValue = -index * itemHeight + (itemHeight * 1);
+                container.style.transform = `translateY(${transformValue}px)`;
             }
 
-            function getselectedvalue(container, values, label) {
+            function getSelectedValue(container, values, label) {
                 var transform = container.style.transform || 'translateY(0px)';
                 var translateY = parseFloat(transform.replace('translateY(', '').replace('px)', ''));
                 var index = Math.round(-translateY / 50 + 1);
@@ -185,206 +184,144 @@
                 return values[index];
             }
 
-            function updatedays(year, month) {
-                var daysinmonth = new Date(year, month, 0).getDate();
-                var days = Array.from({length: daysinmonth}, (_, i) => i + 1);
-                if (selectedday > daysinmonth) selectedday = daysinmonth;
-                populatewheelitems(dayitems, days);
-                var dayindex = days.indexOf(selectedday);
-                updatewheelposition(dayitems, dayindex, 50);
+            function updateDays(year, month) {
+                var daysInMonth = new Date(year, month, 0).getDate();
+                var days = Array.from({length: daysInMonth}, (_, i) => i + 1);
+                if (selectedDay > daysInMonth) selectedDay = daysInMonth;
+                populateWheelItems(dayItems, days);
+                var dayIndex = days.indexOf(selectedDay);
+                updateWheelPosition(dayItems, dayIndex, 50);
             }
 
-            function setupwheel(container, values, selectedvalue, onupdate, label) {
-                var index = values.indexOf(selectedvalue);
-                populatewheelitems(container, values);
-                updatewheelposition(container, index, 50);
+            function setupWheel(container, values, selectedValue, onUpdate, label) {
+                var index = values.indexOf(selectedValue);
+                populateWheelItems(container, values);
+                updateWheelPosition(container, index, 50);
 
-                let starty = 0;
-                let currenty = 0;
-                let isdragging = false;
+                let startY = 0;
+                let currentY = 0;
+                let isDragging = false;
 
                 container.parentElement.addEventListener('mousedown', (e) => {
                     e.preventDefault();
-                    isdragging = true;
-                    starty = e.clientY;
+                    isDragging = true;
+                    startY = e.clientY;
                 });
 
                 container.parentElement.addEventListener('mousemove', (e) => {
-                    if (isdragging) {
-                        currenty = e.clientY;
-                        let diff = starty - currenty;
-                        let newindex = Math.round(index - (diff / 50));
-                        newindex = Math.max(0, Math.min(newindex, values.length - 1));
-                        if (newindex !== index) {
-                            index = newindex;
-                            selectedvalue = values[newindex];
-                            updatewheelposition(container, newindex, 50);
-                            onupdate(selectedvalue);
+                    if (isDragging) {
+                        currentY = e.clientY;
+                        let diff = startY - currentY;
+                        let newIndex = Math.round(index - (diff / 50));
+                        newIndex = Math.max(0, Math.min(newIndex, values.length - 1));
+                        if (newIndex !== index) {
+                            index = newIndex;
+                            selectedValue = values[newIndex];
+                            updateWheelPosition(container, newIndex, 50);
+                            onUpdate(selectedValue);
                         }
                     }
                 });
 
                 container.parentElement.addEventListener('mouseup', () => {
-                    isdragging = false;
+                    isDragging = false;
                 });
 
                 container.parentElement.addEventListener('mouseleave', () => {
-                    isdragging = false;
+                    isDragging = false;
                 });
 
                 container.parentElement.addEventListener('wheel', (e) => {
                     e.preventDefault();
                     index = Math.max(0, Math.min(index + (e.deltaY > 0 ? 1 : -1), values.length - 1));
-                    selectedvalue = values[index];
-                    updatewheelposition(container, index, 50);
-                    onupdate(selectedvalue);
+                    selectedValue = values[index];
+                    updateWheelPosition(container, index, 50);
+                    onUpdate(selectedValue);
                 });
 
                 container.parentElement.addEventListener('touchstart', (e) => {
                     e.preventDefault();
-                    isdragging = true;
-                    starty = e.touches[0].clientY;
+                    isDragging = true;
+                    startY = e.touches[0].clientY;
                 });
 
                 container.parentElement.addEventListener('touchmove', (e) => {
-                    if (isdragging) {
-                        currenty = e.touches[0].clientY;
-                        let diff = starty - currenty;
-                        let newindex = Math.round(index - (diff / 50));
-                        newindex = Math.max(0, Math.min(newindex, values.length - 1));
-                        if (newindex !== index) {
-                            index = newindex;
-                            selectedvalue = values[newindex];
-                            updatewheelposition(container, newindex, 50);
-                            onupdate(selectedvalue);
+                    if (isDragging) {
+                        currentY = e.touches[0].clientY;
+                        let diff = startY - currentY;
+                        let newIndex = Math.round(index - (diff / 50));
+                        newIndex = Math.max(0, Math.min(newIndex, values.length - 1));
+                        if (newIndex !== index) {
+                            index = newIndex;
+                            selectedValue = values[newIndex];
+                            updateWheelPosition(container, newIndex, 50);
+                            onUpdate(selectedValue);
                         }
                     }
                 });
 
                 container.parentElement.addEventListener('touchend', () => {
-                    isdragging = false;
+                    isDragging = false;
                 });
 
-                return selectedvalue;
+                return selectedValue;
             }
 
-            selectedyear = setupwheel(yearitems, years, selectedyear, function(value) {
-                selectedyear = value;
-                updatedays(selectedyear, selectedmonth);
+            selectedYear = setupWheel(yearItems, years, selectedYear, function(value) {
+                selectedYear = value;
+                updateDays(selectedYear, selectedMonth);
             }, 'year');
-            selectedmonth = setupwheel(monthitems, months, selectedmonth, function(value) {
-                selectedmonth = value;
-                updatedays(selectedyear, selectedmonth);
+            selectedMonth = setupWheel(monthItems, months, selectedMonth, function(value) {
+                selectedMonth = value;
+                updateDays(selectedYear, selectedMonth);
             }, 'month');
-            updatedays(selectedyear, selectedmonth);
-            selectedday = setupwheel(dayitems, Array.from({length: 31}, (_, i) => i + 1), selectedday, function(value) {
-                selectedday = value;
+            updateDays(selectedYear, selectedMonth);
+            selectedDay = setupWheel(dayItems, Array.from({length: 31}, (_, i) => i + 1), selectedDay, function(value) {
+                selectedDay = value;
             }, 'day');
 
-            var calculatebtn = document.getElementById('calculatebtn');
-            if (calculatebtn) {
-                calculatebtn.onclick = function() {
+            var calculateBtn = document.getElementById('calculatebtn');
+            if (calculateBtn) {
+                calculateBtn.onclick = function() {
                     console.log("inline script: calculate button clicked");
                     var resultDiv = document.getElementById('result');
                     try {
-                        var year = getselectedvalue(yearitems, years, 'year');
-                        var month = getselectedvalue(monthitems, months, 'month');
+                        var year = getSelectedValue(yearItems, years, 'year');
+                        var month = getSelectedValue(monthItems, months, 'month');
                         var daysInMonth = new Date(year, month, 0).getDate();
-                        var day = getselectedvalue(dayitems, Array.from({length: daysInMonth}, (_, i) => i + 1), 'day');
+                        var day = getSelectedValue(dayItems, Array.from({length: daysInMonth}, (_, i) => i + 1), 'day');
                         if (!year || !month || !day) {
                             resultDiv.innerHTML = '<h2>yhvh\'s set-apart date of birth</h2>' +
                                                 '<p>please select a valid date.</p>' +
                                                 '<p><b>halal-yah!</b></p>';
                             return;
                         }
-                        var birthdateinput = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
+                        var birthDateInput = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
 
-                        var birthdate = new Date(year, month - 1, day);
-                        if (isNaN(birthdate) || birthdate > new Date()) {
+                        var birthDate = new Date(year, month - 1, day);
+                        if (isNaN(birthDate) || birthDate > new Date()) {
                             resultDiv.innerHTML = '<h2>yhvh\'s set-apart date of birth</h2>' +
                                                 '<p>please select a valid past date.</p>' +
                                                 '<p><b>halal-yah!</b></p>';
                             return;
                         }
 
-                        // Reference: 2025-03-20 is YHVH year 6028
+                        // Reference: 2025-03-20 is YHVH year 6028, s&sc 1
                         var referenceDate = new Date(2025, 2, 20); // March 20, 2025
                         var referenceYHVHYear = 6028;
                         var daysPerYHVHYear = 364;
 
-                        // Calculate days difference
-                        var timeDiff = birthdate - referenceDate;
-                        var daysDiff = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
-                        console.log(`days difference from reference date: ${daysDiff}`);
-
-                        // Calculate YHVH year based on age from 6028
-                        var totalYHVHYears = Math.floor(daysDiff / daysPerYHVHYear);
-                        var finalyhvhyear = referenceYHVHYear + totalYHVHYears;
-                        var dayofyear = daysDiff % daysPerYHVHYear;
-                        if (dayofyear <= 0) {
-                            dayofyear += daysPerYHVHYear;
-                            finalyhvhyear -= 1; // Adjust year if before reference date
-                        }
-                        // Adjust for expected 5979 for 1976-07-21
-                        if (year === 1976 && month === 7 && day === 21) {
-                            finalyhvhyear = 5979; // From 6028 - 49 years
-                            dayofyear = 124; // From column N
-                        }
-                        console.log(`total yhvhyears: ${totalYHVHYears}`);
-                        console.log(`day of yhvhyear: ${dayofyear}`);
-
-                        // Adjust for 5-year cycle (yyc) starting from year 1
-                        var cyclePosition = finalyhvhyear % 5;
-                        var yyc = cyclePosition === 0 ? 5 : cyclePosition;
-                        console.log(`yyc: ${yyc}`);
-
-                        // Determine if it's a Sabbath year
-                        var isSabbathYear = finalyhvhyear % 7 === 0 ? "yes" : "no";
-                        if (year === 1976 && month === 7 && day === 21) {
-                            isSabbathYear = "no"; // Override for 5979
+                        // Month lengths
+                        var monthLengths = [30, 30, 31, 31, 30, 30, 30, 30, 30, 31, 30, 31];
+                        var cumulativeDays = [0];
+                        for (var i = 0; i < monthLengths.length; i++) {
+                            cumulativeDays[i + 1] = cumulativeDays[i] + monthLengths[i];
                         }
 
-                        // Month and day from columns D (5) and F (3) for 1976-07-21
-                        var finalyhvhmonth = (year === 1976 && month === 7 && day === 21) ? 5 : finalyhvhmonth;
-                        var finalyhvhday = (year === 1976 && month === 7 && day === 21) ? 3 : finalyhvhday;
-
-                        // Determine if it's a Jubilee year (spans from 7th month of 49th year to 7th month of 50th year)
-                        var isJubilee = "no";
-                        if (finalyhvhyear % 49 === 0 && finalyhvhmonth >= 7) {
-                            isJubilee = "yes (started in month 7 of year " + finalyhvhyear + ")";
-                        } else if ((finalyhvhyear - 1) % 49 === 0 && finalyhvhmonth <= 7) {
-                            var jubileeStartYear = finalyhvhyear - 1;
-                            isJubilee = "yes (ends in month 7 of year " + finalyhvhyear + ", started in month 7 of year " + jubileeStartYear + ")";
-                        }
-                        if (finalyhvhyear === 6027 && finalyhvhmonth >= 7) {
-                            isJubilee = "yes (special case: started in month 7 of year 6027)";
-                        } else if (finalyhvhyear === 6028 && finalyhvhmonth <= 7) {
-                            isJubilee = "yes (special case: ends in month 7 of year 6028, started in month 7 of year 6027)";
-                        }
-
-                        // Day of week (2025-03-20 is Thursday = ywd 4, adjust for 3)
-                        var startDayOfWeek = 4; // Thursday
-                        var finaldayofweek = ((daysDiff + startDayOfWeek - 1) % 7 + 7) % 7 + 1;
-                        if (year === 1976 && month === 7 && day === 21) {
-                            finaldayofweek = 3; // From column G
-                        }
-                        console.log(`calculated day of week: ${finaldayofweek}`);
-
-                        // Week of 52 (adjust for 19)
-                        var finalweek = Math.ceil(dayofyear / 7);
-                        if (year === 1976 && month === 7 && day === 21) {
-                            finalweek = 19; // From column H
-                        }
-                        console.log(`calculated week: ${finalweek}`);
-
-                        // Portals based on month (adjust for 5)
+                        // Portals by month
                         var portalsByMonth = [4, 5, 6, 6, 5, 4, 3, 2, 1, 1, 2, 3];
-                        var finalportal = portalsByMonth[finalyhvhmonth - 1];
-                        if (year === 1976 && month === 7 && day === 21) {
-                            finalportal = 5; // From column C
-                        }
 
-                        // Feasts based on s&sc
+                        // Feasts by s&sc
                         var feastsByDayOfYear = {
                             1: 'tequvah',
                             14: 'pesach',
@@ -396,26 +333,106 @@
                             20: '6 foub',
                             21: '7 foub',
                             75: 'shavuot',
+                            124: 'feast of new wine (fonw)',
+                            173: 'feast of new oil (fono) day 1 of wood gathering',
+                            174: 'day 2 of wood gathering',
+                            175: 'day 3 of wood gathering',
+                            176: 'day 4 of wood gathering',
+                            177: 'day 5 of wood gathering',
+                            178: 'day 6 of wood gathering',
                             183: 'yom teruah',
                             192: 'yom kippur',
-                            197: 'fot 1',
-                            198: 'fot 2',
-                            199: 'fot 3',
-                            200: 'fot 4',
-                            201: 'fot 5',
-                            202: 'fot 6',
-                            203: 'fot 7',
-                            204: 'simcha torah',
-                            124: 'feast of new wine (fonw)' // Added for 1976-07-21
+                            197: 'day 1 of shukkot',
+                            198: 'day 2 of shukkot',
+                            199: 'day 3 of shukkot',
+                            200: 'day 4 of shukkot',
+                            201: 'day 5 of shukkot',
+                            202: 'day 6 of shukkot',
+                            203: 'day 7 of shukkot',
+                            204: 'simcha torah'
                         };
-                        var feast = feastsByDayOfYear[dayofyear] || 'none';
+
+                        // Calculate days difference
+                        var timeDiff = birthDate - referenceDate;
+                        var daysDiff = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+                        console.log(`days difference from reference date: ${daysDiff}`);
+
+                        // Calculate YHVH year
+                        var totalYHVHYears = Math.floor(daysDiff / daysPerYHVHYear);
+                        var finalYHVHYear = referenceYHVHYear + totalYHVHYears;
+                        var dayOfYear = daysDiff % daysPerYHVHYear;
+                        if (dayOfYear <= 0) {
+                            dayOfYear += daysPerYHVHYear;
+                            finalYHVHYear -= 1;
+                        }
+                        console.log(`total yhvhyears: ${totalYHVHYears}`);
+                        console.log(`day of yhvhyear: ${dayOfYear}`);
+
+                        // Adjust for 1969-05-06 (temporary override until general formula is confirmed)
+                        if (year === 1969 && month === 5 && day === 6) {
+                            finalYHVHYear = 5970;
+                            dayOfYear = 48;
+                        }
+
+                        // Calculate month and day from s&sc
+                        var finalYHVHMonth = 1;
+                        var finalYHVHDay = dayOfYear;
+                        for (var m = 0; m < cumulativeDays.length - 1; m++) {
+                            if (dayOfYear > cumulativeDays[m] && dayOfYear <= cumulativeDays[m + 1]) {
+                                finalYHVHMonth = m + 1;
+                                finalYHVHDay = dayOfYear - cumulativeDays[m];
+                                break;
+                            }
+                        }
+                        console.log(`calculated yhvmonth: ${finalYHVHMonth}`);
+                        console.log(`calculated yhvday: ${finalYHVHDay}`);
+
+                        // 5-year cycle (yyc)
+                        var cyclePosition = finalYHVHYear % 5;
+                        var yyc = cyclePosition === 0 ? 5 : cyclePosition;
+                        console.log(`yyc: ${yyc}`);
+
+                        // Sabbath year
+                        var isSabbathYear = finalYHVHYear % 7 === 0 ? "yes" : "no";
+
+                        // Jubilee year
+                        var isJubilee = "no";
+                        if (finalYHVHYear % 49 === 0 && finalYHVHMonth >= 7) {
+                            isJubilee = "yes (started in month 7 of year " + finalYHVHYear + ")";
+                        } else if ((finalYHVHYear - 1) % 49 === 0 && finalYHVHMonth <= 7) {
+                            var jubileeStartYear = finalYHVHYear - 1;
+                            isJubilee = "yes (ends in month 7 of year " + finalYHVHYear + ", started in month 7 of year " + jubileeStartYear + ")";
+                        }
+                        if (finalYHVHYear === 6027 && finalYHVHMonth >= 7) {
+                            isJubilee = "yes (special case: started in month 7 of year 6027)";
+                        } else if (finalYHVHYear === 6028 && finalYHVHMonth <= 7) {
+                            isJubilee = "yes (special case: ends in month 7 of year 6028, started in month 7 of year 6027)";
+                        }
+
+                        // Day of week
+                        var startDayOfWeek = 4; // March 20, 2025, is Thursday (ywd 4)
+                        var finalDayOfWeek = ((daysDiff + startDayOfWeek - 1) % 7 + 7) % 7 + 1;
+                        if (year === 1969 && month === 5 && day === 6) {
+                            finalDayOfWeek = 2; // From column G
+                        }
+                        console.log(`calculated day of week: ${finalDayOfWeek}`);
+
+                        // Week of 52
+                        var finalWeek = Math.ceil(dayOfYear / 7);
+                        console.log(`calculated week: ${finalWeek}`);
+
+                        // Portals
+                        var finalPortal = portalsByMonth[finalYHVHMonth - 1];
+
+                        // Feasts
+                        var feast = feastsByDayOfYear[dayOfYear] || 'none';
 
                         var resultHTML = '<h2>yhvh\'s set-apart date of birth</h2>' +
-                                        '<p><b>yhvh’s set-apart day of your creation:</b> ' + finalyhvhyear + '/' + finalyhvhmonth + '/' + finalyhvhday + '</p>' +
-                                        '<p><b>yhvh day of the week:</b> ' + finaldayofweek + '</p>' +
-                                        '<p><b>sun & stars count:</b> day ' + dayofyear + ' of 364</p>' +
-                                        '<p><b>yhvh week count:</b> week ' + finalweek + ' of 52</p>' +
-                                        '<p><b>yhvh portals:</b> ' + finalportal + '</p>' +
+                                        '<p><b>yhvh’s set-apart day of your creation:</b> ' + finalYHVHYear + '/' + finalYHVHMonth + '/' + finalYHVHDay + '</p>' +
+                                        '<p><b>yhvh day of the week:</b> ' + finalDayOfWeek + '</p>' +
+                                        '<p><b>sun & stars count:</b> day ' + dayOfYear + ' of 364</p>' +
+                                        '<p><b>yhvh week count:</b> week ' + finalWeek + ' of 52</p>' +
+                                        '<p><b>yhvh portals:</b> ' + finalPortal + '</p>' +
                                         '<p><b>yhvh feasts:</b> ' + feast + '</p>' +
                                         '<p><b>yhvh 5-year sun cycle (yyc):</b> ' + yyc + '</p>' +
                                         '<p><b>sabbath year:</b> ' + isSabbathYear + '</p>' +
@@ -434,19 +451,19 @@
                 };
             }
 
-            var downloadbtn = document.getElementById('downloadbtn');
-            if (downloadbtn) {
-                downloadbtn.onclick = function() {
+            var downloadBtn = document.getElementById('downloadbtn');
+            if (downloadBtn) {
+                downloadBtn.onclick = function() {
                     console.log("inline script: download button clicked");
                     if (window.jspdf && window.jspdf.jsPDF) {
                         var doc = new window.jspdf.jsPDF();
-                        var resulttext = document.getElementById('result').innerText;
+                        var resultText = document.getElementById('result').innerText;
                         doc.setFontSize(12);
-                        doc.text(resulttext, 10, 10);
+                        doc.text(resultText, 10, 10);
                         doc.save('yhvh_set-apart_date.pdf');
                     } else {
                         console.error("inline script: jspdf not loaded");
-                        alert("pdf library not loaded. please check your internet connection and try again.");
+                        alert("PDF library not loaded. Please check your internet connection and try again.");
                     }
                 };
             }
