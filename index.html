@@ -59,6 +59,7 @@
             height: 150px; /* 50px per row x 3 rows */
             overflow: hidden;
             position: relative;
+            touch-action: none; /* disable default touch behavior for custom scrolling */
         }
         .wheel-items-inner {
             position: absolute;
@@ -93,24 +94,9 @@
         .wheel-button:hover {
             background-color: #ccc;
         }
-        .wheel-arrow {
-            position: absolute;
-            left: 50%;
-            transform: translateX(-50%);
-            cursor: pointer;
-            font-size: 20px;
-            user-select: none;
-            z-index: 2;
-        }
-        .wheel-arrow.up {
-            top: 0;
-        }
-        .wheel-arrow.down {
-            bottom: 0;
-        }
         .wheel-label {
             font-size: 14px;
-            margin-top: 35px; /* further increased spacing */
+            margin-top: 35px; /* increased spacing */
             text-align: center;
             width: 30%;
             margin-left: 1%;
@@ -147,28 +133,22 @@
         <label>enter your birth date:</label>
         <div class="wheel-container">
             <div class="wheel" id="yearwheel">
-                <div class="wheel-arrow up">▲</div>
                 <div class="wheel-items">
                     <div class="wheel-items-inner" id="yearitems"></div>
                 </div>
                 <div class="wheel-button" id="yearbutton">2000</div>
-                <div class="wheel-arrow down">▼</div>
             </div>
             <div class="wheel" id="monthwheel">
-                <div class="wheel-arrow up">▲</div>
                 <div class="wheel-items">
                     <div class="wheel-items-inner" id="monthitems"></div>
                 </div>
                 <div class="wheel-button" id="monthbutton">1</div>
-                <div class="wheel-arrow down">▼</div>
             </div>
             <div class="wheel" id="daywheel">
-                <div class="wheel-arrow up">▲</div>
                 <div class="wheel-items">
                     <div class="wheel-items-inner" id="dayitems"></div>
                 </div>
                 <div class="wheel-button" id="daybutton">1</div>
-                <div class="wheel-arrow down">▼</div>
             </div>
         </div>
         <div class="wheel-container">
@@ -211,7 +191,7 @@
 
             // update visible position
             function updatewheelposition(container, index, itemheight) {
-                var transformvalue = -index * itemheight;
+                var transformvalue = -index * itemheight + (itemheight * 1); // center the middle item
                 container.style.transform = `translateY(${transformvalue}px)`;
             }
 
@@ -233,19 +213,42 @@
                 populatewheelitems(container, values);
                 updatewheelposition(container, index, 50);
 
-                var uparrow = container.parentElement.parentElement.querySelector('.wheel-arrow.up');
-                var downarrow = container.parentElement.parentElement.querySelector('.wheel-arrow.down');
+                let starty = 0;
+                let currenty = 0;
+                let isdragging = false;
 
-                uparrow.addEventListener('click', function() {
-                    index = (index > 0) ? index - 1 : values.length - 1;
-                    selectedvalue = values[index];
-                    updatewheelposition(container, index, 50);
-                    button.textContent = selectedvalue;
-                    onupdate(selectedvalue);
+                container.parentElement.addEventListener('mousedown', (e) => {
+                    isdragging = true;
+                    starty = e.clientY;
                 });
 
-                downarrow.addEventListener('click', function() {
-                    index = (index < values.length - 1) ? index + 1 : 0;
+                container.parentElement.addEventListener('mousemove', (e) => {
+                    if (isdragging) {
+                        currenty = e.clientY;
+                        let diff = starty - currenty;
+                        let newindex = Math.round(index - (diff / 50));
+                        newindex = Math.max(0, Math.min(newindex, values.length - 1));
+                        if (newindex !== index) {
+                            index = newindex;
+                            selectedvalue = values[index];
+                            updatewheelposition(container, index, 50);
+                            button.textContent = selectedvalue;
+                            onupdate(selectedvalue);
+                        }
+                    }
+                });
+
+                container.parentElement.addEventListener('mouseup', () => {
+                    isdragging = false;
+                });
+
+                container.parentElement.addEventListener('mouseleave', () => {
+                    isdragging = false;
+                });
+
+                container.parentElement.addEventListener('wheel', (e) => {
+                    e.preventDefault();
+                    index = Math.max(0, Math.min(index + (e.deltaY > 0 ? 1 : -1), values.length - 1));
                     selectedvalue = values[index];
                     updatewheelposition(container, index, 50);
                     button.textContent = selectedvalue;
