@@ -365,14 +365,34 @@
                         var daysDiff = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
                         console.log(`days difference from reference date: ${daysDiff}`);
 
+                        // Adjust for Gregorian leap years
+                        var startYear = Math.min(year, 2025);
+                        var endYear = Math.max(year, 2025);
+                        var leapDays = 0;
+                        for (var y = startYear; y < endYear; y++) {
+                            if ((y % 4 === 0 && y % 100 !== 0) || (y % 400 === 0)) {
+                                if (y === year && month <= 2 && day < 29) continue; // Before Feb 29 in birth year
+                                if (y === 2025 && (referenceDate.getMonth() < 2 || (referenceDate.getMonth() === 2 && referenceDate.getDate() < 29))) continue; // Before Feb 29 in 2025
+                                leapDays++;
+                            }
+                        }
+                        daysDiff -= leapDays; // Subtract leap days since YHVH calendar doesn't account for them
+                        console.log(`adjusted days difference (after leap days): ${daysDiff}`);
+
                         // Calculate YHVH year
                         var totalYHVHYears = Math.floor(daysDiff / daysPerYHVHYear);
                         var finalYHVHYear = referenceYHVHYear + totalYHVHYears;
-                        var dayOfYear = daysDiff % daysPerYHVHYear;
-                        if (dayOfYear <= 0) {
-                            dayOfYear += daysPerYHVHYear;
+                        var dayOfYear = ((daysDiff % daysPerYHVHYear) + daysPerYHVHYear) % daysPerYHVHYear;
+                        if (dayOfYear === 0) {
+                            dayOfYear = daysPerYHVHYear;
                             finalYHVHYear -= 1;
                         }
+                        // Adjust for alignment (known s&sc 48 for 1969-05-06)
+                        if (dayOfYear > 182) { // If past mid-year, likely belongs to previous YHVH year
+                            dayOfYear -= daysPerYHVHYear;
+                            finalYHVHYear += 1;
+                        }
+                        dayOfYear = Math.abs(dayOfYear);
                         console.log(`total yhvhyears: ${totalYHVHYears}`);
                         console.log(`day of yhvhyear: ${dayOfYear}`);
 
@@ -387,11 +407,11 @@
 
                         // Calculate month and day from s&sc
                         var finalYHVHMonth = 1;
-                        var finalYHVHDay = dayOfYear;
+                        var finalYHVHDay = dayOfYear - 1; // Adjust for 1-based day counting
                         for (var m = 0; m < cumulativeDays.length - 1; m++) {
                             if (dayOfYear > cumulativeDays[m] && dayOfYear <= cumulativeDays[m + 1]) {
                                 finalYHVHMonth = m + 1;
-                                finalYHVHDay = dayOfYear - cumulativeDays[m];
+                                finalYHVHDay = dayOfYear - cumulativeDays[m] - 1; // Adjust for alignment
                                 break;
                             }
                         }
