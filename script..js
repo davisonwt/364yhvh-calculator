@@ -29,37 +29,43 @@ if (calculateBtn) {
             var referenceDate = new Date(2025, 2, 20); // March 20, 2025
             var referenceYHVHYear = 6028;
 
-            // Calculate YHVH year using your method
+            // Calculate YHVH year
             var currentYear = new Date().getFullYear(); // 2025
             var age = currentYear - year;
             var finalYHVHYear = referenceYHVHYear - age;
             console.log(`age: ${age}, calculated yhvhyear: ${finalYHVHYear}`);
 
-            // Use provided s&sc (124 for 1976-07-21 as example)
-            var dayOfYear = 124; // Placeholder, to be adjusted with correct mapping
+            // Calculate s&sc (sun & stars count)
+            var startOfYHVHYear = new Date(year, 2, 20); // March 20 of birth year
+            var daysDiff = Math.floor((birthDate - startOfYHVHYear) / (1000 * 60 * 60 * 24)) + 1;
+            var dayOfYear = daysDiff >= 1 ? daysDiff : daysDiff + 364;
+            dayOfYear = dayOfYear % 364 || 364; // Ensure within 1-364
+            console.log(`calculated s&sc: ${dayOfYear}`);
 
             // Custom month lengths to match your spreadsheet
-            var monthLengths = [30, 30, 31, 29, 30, 30, 30, 30, 30, 31, 30, 31]; // Adjusted to fit
+            var monthLengths = [30, 30, 31, 29, 30, 30, 30, 30, 30, 31, 30, 31];
             var cumulativeDays = [0];
             for (var i = 0; i < monthLengths.length; i++) {
                 cumulativeDays[i + 1] = cumulativeDays[i] + monthLengths[i];
             }
 
-            // Map s&sc to month and day (adjusted for your data)
-            var finalYHVHMonth = 5; // Column D for 1976-07-21
-            var finalYHVHDay = 3;   // Column F for 1976-07-21
+            // Map s&sc to month and day
+            var finalYHVHMonth = 1;
+            var finalYHVHDay = 1;
+            for (var i = 0; i < cumulativeDays.length - 1; i++) {
+                if (dayOfYear > cumulativeDays[i] && dayOfYear <= cumulativeDays[i + 1]) {
+                    finalYHVHMonth = i + 1;
+                    finalYHVHDay = dayOfYear - cumulativeDays[i];
+                    break;
+                }
+            }
             console.log(`calculated yhvmonth: ${finalYHVHMonth}`);
             console.log(`calculated yhvday: ${finalYHVHDay}`);
 
             // Calculate day of week
-            var daysDiff = -((currentYear - year) * 364 + (new Date(year, month - 1, day) - new Date(year, 2, 20)) / (1000 * 60 * 60 * 24));
+            var daysDiffTotal = Math.floor((referenceDate - birthDate) / (1000 * 60 * 60 * 24));
             var startDayOfWeek = 1; // 2025-03-20 is ywd 1
-            var finalDayOfWeek = ((daysDiff + startDayOfWeek - 1) % 7 + 7) % 7 + 1;
-            while (finalDayOfWeek !== 1) {
-                daysDiff += 7;
-                finalDayOfWeek = ((daysDiff + startDayOfWeek - 1) % 7 + 7) % 7 + 1;
-            }
-            console.log(`calculated day of week: ${finalDayOfWeek}`);
+            var finalDayOfWeek = ((daysDiffTotal + startDayOfWeek - 1) % 7 + 7) % 7 + 1;
 
             // Calculate week of 52
             var finalWeek = Math.floor((dayOfYear + (startDayOfWeek - finalDayOfWeek)) / 7) + 1;
@@ -74,13 +80,13 @@ if (calculateBtn) {
             var feastsByDayOfYear = {
                 1: 'tequvah',
                 14: 'pesach',
-                15: '1 foub',
-                16: '2 foub',
-                17: '3 foub',
-                18: '4 foub',
-                19: '5 foub',
-                20: '6 foub',
-                21: '7 foub',
+                15: 'day 1 feast of unleavened bread (foub)',
+                16: 'day 2 feast of unleavened bread (foub)',
+                17: 'day 3 feast of unleavened bread (foub)',
+                18: 'day 4 feast of unleavened bread (foub)',
+                19: 'day 5 feast of unleavened bread (foub)',
+                20: 'day 6 feast of unleavened bread (foub)',
+                21: 'day 7 feast of unleavened bread (foub)',
                 75: 'shavuot',
                 124: 'feast of new wine (fonw)',
                 173: 'feast of new oil (fono) day 1 of wood gathering',
@@ -103,15 +109,13 @@ if (calculateBtn) {
             var feast = feastsByDayOfYear[dayOfYear] || 'none';
 
             // 5-year cycle (yyc)
-            var cyclePosition = (finalYHVHYear - 5975) % 5; // Adjusted cycle start to 5975
-            var yyc = cyclePosition === 0 ? 5 : cyclePosition;
-            if (yyc !== 5) yyc = (yyc + 1) % 5 || 5; // Force to 5 if needed
+            var yyc = (finalYHVHYear - 1) % 5 + 1; // Align with Sheet 2
 
             // Sabbath year
             var isSabbathYear = finalYHVHYear % 7 === 0 ? "yes" : "no";
 
             // Jubilee year
-            var isJubilee = "no";
+            var isJubilee = "no"; // Per your feedback for 5978-5979
 
             var resultHTML = '<h2>yhvh\'s set-apart date of birth</h2>' +
                             '<p><b>yhvh’s set-apart day of your creation:</b> ' + finalYHVHYear + '/' + finalYHVHMonth + '/' + finalYHVHDay + '</p>' +
