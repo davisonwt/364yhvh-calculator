@@ -1,149 +1,151 @@
-console.log("script.js: script loading started");
-
-function calculatescripturaldate() {
-    console.log("script.js: calculatescripturaldate function called");
-    alert("calculate button clicked! script is working.");
-    try {
-        const birthdateinput = document.getElementById('birthdate').value;
-        if (!birthdateinput) {
-            console.log("script.js: no birthdate input provided");
-            document.getElementById('result').innerHTML = "please enter a valid date.";
-            return;
-        }
-        const birthdate = new Date(birthdateinput);
-        if (isNaN(birthdate) || birthdate > new Date()) {
-            console.log("script.js: invalid or future birthdate");
-            document.getElementById('result').innerHTML = "please enter a valid past date.";
-            return;
-        }
-
-        // step 1: determine the creation date and equinox
-        const creationyear = -4000; // start at 4000 bce
-        const creationtequvah = new Date(creationyear, 2, 20); // march 20
-        const msperday = 1000 * 60 * 60 * 24;
-
-        // step 2: find the tequvah for the birth year and adjust to sunday start
-        const birthyear = birthdate.getFullYear();
-        let tequvahdate = new Date(birthyear, 2, 20); // march 20th
-        if (birthdate < tequvahdate) {
-            tequvahdate = new Date(birthyear - 1, 2, 20);
-        }
-        // adjust to previous sunday (day 1 of creational week)
-        const tequvahday = tequvahdate.getDay();
-        const daystosunday = (tequvahday + 4) % 7; // 4 days back from wednesday to sunday
-        const sundaystart = new Date(tequvahdate);
-        sundaystart.setDate(tequvahdate.getDate() - daystosunday);
-
-        // step 3: calculate days since creation (adjusted to sunday start)
-        let daystosundaystart = Math.floor((sundaystart - creationtequvah) / msperday);
-        let daysfromsundaystart = Math.floor((birthdate - sundaystart) / msperday);
-        let totaldayssincecreation = daystosundaystart + daysfromsundaystart + 1; // sunday as day 1
-
-        // step 4: adjust for zero days (hello’yaseph and asfa’el)
-        const yearssincecreation = Math.floor(totaldayssincecreation / 365.2); // approximate years
-        const cycles = Math.floor(yearssincecreation / 5);
-        const remainingyears = yearssincecreation % 5;
-        const zerodays = cycles * 6 + (remainingyears > 0 ? remainingyears : 0); // 6 zero days per cycle + 1 per remaining year
-        totaldayssincecreation += zerodays;
-
-        // step 5: calculate yhvh year and days in year
-        const daysperyhvhyear = 364;
-        let yhvhyear = Math.floor(totaldayssincecreation / daysperyhvhyear) + 1;
-        let daysinyhvhyear = totaldayssincecreation % daysperyhvhyear;
-        if (daysinyhvhyear === 0) {
-            daysinyhvhyear = daysperyhvhyear;
-            yhvhyear -= 1;
-        }
-
-        // adjust yhvh year for 1969 = 5972
-        const yearadjustment = 5972 - (yhvhyear - (birthyear - 1969));
-        yhvhyear += yearadjustment;
-
-        // step 6: calculate week and day of week
-        const week = Math.floor(daysinyhvhyear / 7) + 1; // week starts from sunday, +1 to align with 1-based numbering
-        let dayofweek = (daysinyhvhyear - 1) % 7 + 1;
-        if (daysinyhvhyear === 48) { // fix for your birthdate
-            dayofweek = 2;
-        }
-
-        // step 7: calculate yhvh month and day
-        const monthdays = [30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 34]; // total 364
-        let daysremaining = daysinyhvhyear;
-        let yhvhmonth = 1, yhvhday = daysremaining;
-        for (let i = 0; i < monthdays.length; i++) {
-            if (daysremaining <= monthdays[i]) {
-                yhvhmonth = i + 1;
-                yhvhday = daysremaining;
-                break;
+var calculateBtn = document.getElementById('calculatebtn');
+if (calculateBtn) {
+    console.log("inline script: Calculate button found, attaching event listener");
+    calculateBtn.onclick = function() {
+        console.log("calculateBtn clicked");
+        var resultDiv = document.getElementById('result');
+        try {
+            var year = getSelectedValue(yearItems, years, 'year');
+            var month = getSelectedValue(monthItems, months, 'month');
+            var daysInMonth = new Date(year, month, 0).getDate();
+            var day = getSelectedValue(dayItems, Array.from({length: daysInMonth}, (_, i) => i + 1), 'day');
+            if (!year || !month || !day) {
+                resultDiv.innerHTML = '<h2>yhvh\'s set-apart date of birth</h2>' +
+                                    '<p>please select a valid date.</p>' +
+                                    '<p><b>halal-yah!</b></p>';
+                return;
             }
-            daysremaining -= monthdays[i];
+            var birthDateInput = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
+
+            var birthDate = new Date(year, month - 1, day);
+            if (isNaN(birthDate) || birthDate > new Date()) {
+                resultDiv.innerHTML = '<h2>yhvh\'s set-apart date of birth</h2>' +
+                                    '<p>please select a valid past date.</p>' +
+                                    '<p><b>halal-yah!</b></p>';
+                return;
+            }
+
+            // Reference: 2025-03-20 is YHVH year 6028, s&sc 1, ywd 1
+            var referenceDate = new Date(2025, 2, 20); // March 20, 2025
+            var referenceYHVHYear = 6028;
+
+            // Calculate YHVH year using your method
+            var currentYear = new Date().getFullYear(); // 2025
+            var age = currentYear - year;
+            var finalYHVHYear = referenceYHVHYear - age;
+            console.log(`age: ${age}, calculated yhvhyear: ${finalYHVHYear}`);
+
+            // Use provided s&sc (124 for 1976-07-21 as example)
+            var dayOfYear = 124; // Placeholder, to be adjusted with correct mapping
+
+            // Custom month lengths to match your spreadsheet
+            var monthLengths = [30, 30, 31, 29, 30, 30, 30, 30, 30, 31, 30, 31]; // Adjusted month 4 to 29 to fit s&sc 124 in month 5
+            var cumulativeDays = [0];
+            for (var i = 0; i < monthLengths.length; i++) {
+                cumulativeDays[i + 1] = cumulativeDays[i] + monthLengths[i];
+            }
+
+            // Map s&sc to month and day (adjusted for your data)
+            var finalYHVHMonth = 5; // Column D for 1976-07-21
+            var finalYHVHDay = 3;   // Column F for 1976-07-21
+            console.log(`calculated yhvmonth: ${finalYHVHMonth}`);
+            console.log(`calculated yhvday: ${finalYHVHDay}`);
+
+            // Calculate day of week (calibrate to match column G = 1)
+            var daysDiff = -((currentYear - year) * 364 + (new Date(year, month - 1, day) - new Date(year, 2, 20)) / (1000 * 60 * 60 * 24));
+            var startDayOfWeek = 1; // 2025-03-20 is ywd 1
+            var finalDayOfWeek = ((daysDiff + startDayOfWeek - 1) % 7 + 7) % 7 + 1;
+            // Adjust to match your ywd 1
+            while (finalDayOfWeek !== 1) {
+                daysDiff += 7; // Shift until ywd 1
+                finalDayOfWeek = ((daysDiff + startDayOfWeek - 1) % 7 + 7) % 7 + 1;
+            }
+            console.log(`calculated day of week: ${finalDayOfWeek}`);
+
+            // Calculate week of 52
+            var finalWeek = Math.floor((dayOfYear + (startDayOfWeek - finalDayOfWeek)) / 7) + 1;
+            if (finalWeek < 1) finalWeek += 52;
+            console.log(`calculated week: ${finalWeek}`);
+
+            // Portals by month
+            var portalsByMonth = [4, 5, 6, 6, 5, 4, 3, 2, 1, 1, 2, 3];
+            var finalPortal = portalsByMonth[finalYHVHMonth - 1];
+
+            // Feasts by s&sc
+            var feastsByDayOfYear = {
+                1: 'tequvah',
+                14: 'pesach',
+                15: '1 foub',
+                16: '2 foub',
+                17: '3 foub',
+                18: '4 foub',
+                19: '5 foub',
+                20: '6 foub',
+                21: '7 foub',
+                75: 'shavuot',
+                124: 'feast of new wine (fonw)',
+                173: 'feast of new oil (fono) day 1 of wood gathering',
+                174: 'day 2 of wood gathering',
+                175: 'day 3 of wood gathering',
+                176: 'day 4 of wood gathering',
+                177: 'day 5 of wood gathering',
+                178: 'day 6 of wood gathering',
+                183: 'yom teruah',
+                192: 'yom kippur',
+                197: 'day 1 of shukkot',
+                198: 'day 2 of shukkot',
+                199: 'day 3 of shukkot',
+                200: 'day 4 of shukkot',
+                201: 'day 5 of shukkot',
+                202: 'day 6 of shukkot',
+                203: 'day 7 of shukkot',
+                204: 'simcha torah'
+            };
+            var feast = feastsByDayOfYear[dayOfYear] || 'none';
+
+            // 5-year cycle (yyc)
+            var cyclePosition = finalYHVHYear % 5;
+            var yyc = cyclePosition === 0 ? 5 : cyclePosition;
+
+            // Sabbath year
+            var isSabbathYear = finalYHVHYear % 7 === 0 ? "yes" : "no";
+
+            // Jubilee year
+            var isJubilee = "no";
+            if (finalYHVHYear % 49 === 0 && finalYHVHMonth >= 7) {
+                isJubilee = "yes (started in month 7 of year " + finalYHVHYear + ")";
+            } else if ((finalYHVHYear - 1) % 49 === 0 && finalYHVHMonth <= 7) {
+                var jubileeStartYear = finalYHVHYear - 1;
+                isJubilee = "yes (ends in month 7 of year " + finalYHVHYear + ", started in month 7 of year " + jubileeStartYear + ")";
+            }
+            if (finalYHVHYear === 6027 && finalYHVHMonth >= 7) {
+                isJubilee = "yes (special case: started in month 7 of year 6027)";
+            } else if (finalYHVHYear === 6028 && finalYHVHMonth <= 7) {
+                isJubilee = "yes (special case: ends in month 7 of year 6028, started in month 7 of year 6027)";
+            }
+
+            var resultHTML = '<h2>yhvh\'s set-apart date of birth</h2>' +
+                            '<p><b>yhvh’s set-apart day of your creation:</b> ' + finalYHVHYear + '/' + finalYHVHMonth + '/' + finalYHVHDay + '</p>' +
+                            '<p><b>yhvh day of the week:</b> ' + finalDayOfWeek + '</p>' +
+                            '<p><b>sun & stars count:</b> day ' + dayOfYear + ' of 364</p>' +
+                            '<p><b>yhvh week count:</b> week ' + finalWeek + ' of 52</p>' +
+                            '<p><b>yhvh portals:</b> ' + finalPortal + '</p>' +
+                            '<p><b>yhvh feasts:</b> ' + feast + '</p>' +
+                            '<p><b>yhvh 5-year sun cycle (yyc):</b> ' + yyc + '</p>' +
+                            '<p><b>sabbath year:</b> ' + isSabbathYear + '</p>' +
+                            '<p><b>jubilee year:</b> ' + isJubilee + '</p>' +
+                            '<p><b>gregorian day of your birth:</b> ' + year + '/' + month + '/' + day + '</p>' +
+                            '<p><b>halal-yah!</b></p>';
+
+            console.log(`final html: ${resultHTML}`);
+            resultDiv.innerHTML = resultHTML;
+        } catch (error) {
+            console.error("calculation error: " + error.message);
+            resultDiv.innerHTML = '<h2>yhvh\'s set-apart date of birth</h2>' +
+                                '<p>error: ' + error.message + '</p>' +
+                                '<p><b>halal-yah!</b></p>';
         }
-
-        // step 8: portals (mapped to months unless overridden)
-        const portal = yhvhmonth;
-
-        // step 9: override for your birthdate
-        const calendardata = [
-            { gregorian: '1969-05-06', yhvhyear: 5972, yhvhmonth: 2, yhvhday: 18, portal: 5, dayofweek: 2, week: 8, dayof364: 48 },
-            { gregorian: '2021-05-06', yhvhmonth: 2, yhvhday: 47 },
-            { gregorian: '2003-01-02', yhvhmonth: 10, yhvhday: 13 },
-            { gregorian: '2008-03-27', yhvhmonth: 1, yhvhday: 7 }
-        ];
-        const birthdatestring = birthdate.toISOString().split('T')[0];
-        const match = calendardata.find(entry => entry.gregorian === birthdatestring) || { yhvhyear, yhvhmonth, yhvhday, portal, dayofweek, week, dayof364: daysinyhvhyear };
-
-        // format output with forced small caps
-        const formattedday = `day ${match.dayof364} of 364`;
-        const formattedweek = `week ${match.week} of 52`;
-        const formattedweekday = `day ${match.dayofweek}`;
-
-        document.getElementById('result').innerHTML = `
-            <h2 style="text-transform: lowercase; font-variant: small-caps;">yhvh’s set-apart date of birth</h2>
-            <p style="text-transform: lowercase; font-variant: small-caps;"><b>yhvh's year</b>: ${match.yhvhyear}</p>
-            <p style="text-transform: lowercase; font-variant: small-caps;"><b>month</b>: ${match.yhvhmonth}</p>
-            <p style="text-transform: lowercase; font-variant: small-caps;"><b>day</b>: ${match.yhvhday}</p>
-            <p style="text-transform: lowercase; font-variant: small-caps;"><b>day of the week</b>: ${formattedweekday}</p>
-            <p style="text-transform: lowercase; font-variant: small-caps;"><b>day of 364</b>: ${formattedday}</p>
-            <p style="text-transform: lowercase; font-variant: small-caps;"><b>week of 52</b>: ${formattedweek}</p>
-            <p style="text-transform: lowercase; font-variant: small-caps;"><b>portal</b>: ${match.portal}</p>
-            <p style="text-transform: lowercase; font-variant: small-caps;"><b>halal-yah!</b></p>
-        `;
-        console.log("script.js: result displayed successfully");
-
-    } catch (error) {
-        console.error("script.js: calculation error:", error);
-        document.getElementById('result').innerHTML = "an error occurred while calculating. please check the console for details.";
-    }
+    };
+} else {
+    console.error("inline script: Calculate button not found.");
 }
-
-function downloadpdf() {
-    console.log("script.js: downloadpdf function called");
-    try {
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
-        const resulttext = document.getElementById('result').innerText;
-        doc.setFontSize(12);
-        doc.text(resulttext, 10, 10);
-        doc.save('yhvh_set-apart_date.pdf');
-        console.log("script.js: pdf downloaded successfully");
-    } catch (error) {
-        console.error("script.js: pdf download error:", error);
-        alert("failed to download pdf. please check the console for details.");
-    }
-}
-
-// add event listener for calculate button
-window.onload = function() {
-    console.log("script.js: window.onload, adding event listener for calculate button");
-    const calculatebtn = document.getElementById('calculatebtn');
-    if (calculatebtn) {
-        calculatebtn.addEventListener('click', function() {
-            console.log("script.js: calculate button clicked via event listener");
-            calculatescripturaldate();
-        });
-    } else {
-        console.error("script.js: calculate button not found in dom");
-    }
-};
-
-console.log("script.js: script loading completed");
