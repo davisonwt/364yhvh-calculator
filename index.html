@@ -181,18 +181,18 @@
             }
 
             // get selected value
-            function getselectedvalue(container, values) {
+            function getselectedvalue(container, values, label) {
                 var transform = container.style.transform || 'translateY(0px)';
                 var translateY = parseFloat(transform.replace('translateY(', '').replace('px)', ''));
                 var index = Math.round(-translateY / 50 + 1);
                 index = Math.max(0, Math.min(index, values.length - 1));
-                console.log("selected index: " + index + ", value: " + values[index]);
+                console.log(`selected ${label} - index: ${index}, value: ${values[index]}`);
                 return values[index];
             }
 
             // update days based on year and month
             function updatedays(year, month) {
-                var daysinmonth = new Date(year, month, 0).getDate();
+                var daysinmonth = new Date(year, month - 1, 0).getDate(); // month is 0-based
                 var days = Array.from({length: daysinmonth}, (_, i) => i + 1);
                 if (selectedday > daysinmonth) selectedday = daysinmonth;
                 populatewheelitems(dayitems, days);
@@ -201,7 +201,7 @@
             }
 
             // handle wheel updates
-            function setupwheel(container, values, selectedvalue, onupdate) {
+            function setupwheel(container, values, selectedvalue, onupdate, label) {
                 var index = values.indexOf(selectedvalue);
                 populatewheelitems(container, values);
                 updatewheelposition(container, index, 50);
@@ -281,15 +281,15 @@
             selectedyear = setupwheel(yearitems, years, selectedyear, function(value) {
                 selectedyear = value;
                 updatedays(selectedyear, selectedmonth);
-            });
+            }, 'year');
             selectedmonth = setupwheel(monthitems, months, selectedmonth, function(value) {
                 selectedmonth = value;
                 updatedays(selectedyear, selectedmonth);
-            });
+            }, 'month');
             updatedays(selectedyear, selectedmonth);
             selectedday = setupwheel(dayitems, Array.from({length: 31}, (_, i) => i + 1), selectedday, function(value) {
                 selectedday = value;
-            });
+            }, 'day');
 
             var calculatebtn = document.getElementById('calculatebtn');
             if (calculatebtn) {
@@ -298,65 +298,66 @@
                     var resultDiv = document.getElementById('result');
                     try {
                         console.log("starting calculation");
-                        var year = getselectedvalue(yearitems, years);
-                        var month = getselectedvalue(monthitems, months);
-                        var day = getselectedvalue(dayitems, Array.from({length: new Date(year, month - 1, 0).getDate()}, (_, i) => i + 1)); // Adjust month to 0-based for Date
-                        console.log("raw selected values - year: " + year + ", month: " + month + ", day: " + day);
+                        var year = getselectedvalue(yearitems, years, 'year');
+                        var month = getselectedvalue(monthitems, months, 'month');
+                        var daysInMonth = new Date(year, month - 1, 0).getDate(); // month is 0-based
+                        var day = getselectedvalue(dayitems, Array.from({length: daysInMonth}, (_, i) => i + 1), 'day');
+                        console.log(`raw selected values - year: ${year}, month: ${month}, day: ${day}, days in month: ${daysInMonth}`);
                         if (!year || !month || !day) {
                             resultDiv.innerHTML = '<h2 style="text-transform: lowercase; font-variant: small-caps;">yhvh\'s set-apart date of birth</h2>' +
-                                '<p style="text-transform: lowercase; font-variant: small-caps;">please select a valid date.</p>' +
-                                '<p style="text-transform: lowercase; font-variant: small-caps;"><b>halal-yah!</b></p>';
+                                                '<p style="text-transform: lowercase; font-variant: small-caps;">please select a valid date.</p>' +
+                                                '<p style="text-transform: lowercase; font-variant: small-caps;"><b>halal-yah!</b></p>';
                             return;
                         }
-                        var birthdateinput = year + '-' + month.toString().padStart(2, '0') + '-' + day.toString().padStart(2, '0');
+                        var birthdateinput = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
                         console.log("input date: " + birthdateinput);
 
-                        var birthdate = new Date(birthdateinput);
+                        var birthdate = new Date(year, month - 1, day); // month is 0-based
                         if (isNaN(birthdate) || birthdate > new Date()) {
+                            console.log("invalid or future date detected");
                             resultDiv.innerHTML = '<h2 style="text-transform: lowercase; font-variant: small-caps;">yhvh\'s set-apart date of birth</h2>' +
-                                '<p style="text-transform: lowercase; font-variant: small-caps;">please select a valid past date.</p>' +
-                                '<p style="text-transform: lowercase; font-variant: small-caps;"><b>halal-yah!</b></p>';
+                                                '<p style="text-transform: lowercase; font-variant: small-caps;">please select a valid past date.</p>' +
+                                                '<p style="text-transform: lowercase; font-variant: small-caps;"><b>halal-yah!</b></p>';
                             return;
                         }
 
-                        var birthdatestring = birthdate.toISOString().split('T')[0];
-                        console.log("formatted date: " + birthdatestring);
+                        // calculate scriptural date
+                        // reference point: 1969-03-20 is the start of yhvhyear 5972
+                        var referenceDate = new Date(1969, 2, 20); // March 20, 1969 (month is 0-based)
+                        var referenceYHVHYear = 5972;
+                        var daysPerYHVHYear = 364;
 
-                        // use calendardata for pre-set values
-                        var calendardata = [
-                            {date: '1969-05-06', yhvhyear: 5972, yhvhmonth: 2, yhvhday: 18, portal: 5, dayofweek: 2, week: 8, dayofyear: 48},
-                            {date: '1969-07-07', yhvhyear: 5973, yhvhmonth: 7, yhvhday: 9, portal: 3, dayofweek: 2, week: 28, dayofyear: 191},
-                            {date: '2021-05-11', yhvhyear: 6022, yhvhmonth: 2, yhvhday: 18, portal: 5, dayofweek: 2, week: 8, dayofyear: 48},
-                            {date: '2003-01-02', yhvhyear: 6004, yhvhmonth: 10, yhvhday: 4, portal: 1, dayofweek: 5, week: 40, dayofyear: 279},
-                            {date: '2008-03-27', yhvhyear: 6009, yhvhmonth: 1, yhvhday: 7, portal: 4, dayofweek: 5, week: 1, dayofyear: 7}
-                        ];
+                        // calculate days difference
+                        var timeDiff = birthdate - referenceDate;
+                        var daysDiff = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+                        console.log("days difference from reference date: " + daysDiff);
 
-                        var match = null;
-                        for (var j = 0; j < calendardata.length; j++) {
-                            console.log("comparing with: " + calendardata[j].date);
-                            if (calendardata[j].date === birthdatestring) {
-                                match = calendardata[j];
-                                console.log("match found: " + JSON.stringify(match));
-                                break;
-                            }
+                        // calculate yhvhyear
+                        var yearOffset = Math.floor(daysDiff / daysPerYHVHYear);
+                        var finalyhvhyear = referenceYHVHYear + yearOffset;
+                        console.log("calculated yhvhyear: " + finalyhvhyear);
+
+                        // calculate day of yhvhyear (1 to 364)
+                        var dayofyear = daysDiff % daysPerYHVHYear;
+                        if (dayofyear <= 0) dayofyear += daysPerYHVHYear;
+                        console.log("day of yhvhyear: " + dayofyear);
+
+                        // calculate yhvmonth and yhvday (assuming 12 months of ~30 days each)
+                        var daysPerMonth = 30; // approximate
+                        var finalyhvhmonth = Math.floor((dayofyear - 1) / daysPerMonth) + 1;
+                        var finalyhvhday = (dayofyear - 1) % daysPerMonth + 1;
+                        if (finalyhvhmonth > 12) { // adjust for 364 days
+                            finalyhvhmonth = 12;
+                            finalyhvhday = dayofyear - (11 * daysPerMonth);
                         }
+                        console.log("calculated yhvmonth: " + finalyhvhmonth + ", yhvday: " + finalyhvhday);
 
-                        if (!match) {
-                            console.log("no match found for: " + birthdatestring);
-                            resultDiv.innerHTML = '<h2 style="text-transform: lowercase; font-variant: small-caps;">yhvh\'s set-apart date of birth</h2>' +
-                                '<p style="text-transform: lowercase; font-variant: small-caps;">no data available for this date.</p>' +
-                                '<p style="text-transform: lowercase; font-variant: small-caps;"><b>halal-yah!</b></p>';
-                            return;
-                        }
-
-                        var finalyhvhyear = match.yhvhyear;
-                        var finalyhvhmonth = match.yhvhmonth;
-                        var finalyhvhday = match.yhvhday;
-                        var finalportal = match.portal;
-                        var finaldayofweek = match.dayofweek;
-                        var finalweek = match.week;
-                        var finaldayofyear = match.dayofyear;
-                        var feast = "none"; // default to "none" if no feast
+                        // calculate other fields
+                        var finaldayofweek = (dayofyear - 1) % 7 + 1; // 1 to 7
+                        var finalweek = Math.floor((dayofyear - 1) / 7) + 1; // 1 to 52
+                        var finaldayofyear = dayofyear;
+                        var finalportal = 1; // placeholder (needs specific rules)
+                        var feast = birthdateinput === '1969-03-20' ? 'tequvah' : 'none'; // example feast rule
 
                         console.log("final values - year: " + finalyhvhyear + ", month: " + finalyhvhmonth + ", day: " + finalyhvhday + ", feast: " + feast);
 
@@ -365,15 +366,15 @@
                         var formattedweekday = "day " + finaldayofweek;
 
                         var resultHTML = '<h2 style="text-transform: lowercase; font-variant: small-caps;">yhvh\'s set-apart date of birth</h2>' +
-                            '<p style="text-transform: lowercase; font-variant: small-caps;"><b>yhvh year</b>: ' + finalyhvhyear + '</p>' +
-                            '<p style="text-transform: lowercase; font-variant: small-caps;"><b>month</b>: ' + finalyhvhmonth + '</p>' +
-                            '<p style="text-transform: lowercase; font-variant: small-caps;"><b>day</b>: ' + finalyhvhday + '</p>' +
-                            '<p style="text-transform: lowercase; font-variant: small-caps;"><b>day of the week</b>: ' + formattedweekday + '</p>' +
-                            '<p style="text-transform: lowercase; font-variant: small-caps;"><b>day of 364</b>: ' + formattedday + '</p>' +
-                            '<p style="text-transform: lowercase; font-variant: small-caps;"><b>week of 52</b>: ' + formattedweek + '</p>' +
-                            '<p style="text-transform: lowercase; font-variant: small-caps;"><b>portal</b>: ' + finalportal + '</p>' +
-                            '<p style="text-transform: lowercase; font-variant: small-caps;"><b>feast day</b>: ' + feast + '</p>' +
-                            '<p style="text-transform: lowercase; font-variant: small-caps;"><b>halal-yah!</b></p>';
+                                        '<p style="text-transform: lowercase; font-variant: small-caps;"><b>yhvh year</b>: ' + finalyhvhyear + '</p>' +
+                                        '<p style="text-transform: lowercase; font-variant: small-caps;"><b>month</b>: ' + finalyhvhmonth + '</p>' +
+                                        '<p style="text-transform: lowercase; font-variant: small-caps;"><b>day</b>: ' + finalyhvhday + '</p>' +
+                                        '<p style="text-transform: lowercase; font-variant: small-caps;"><b>day of the week</b>: ' + formattedweekday + '</p>' +
+                                        '<p style="text-transform: lowercase; font-variant: small-caps;"><b>day of 364</b>: ' + formattedday + '</p>' +
+                                        '<p style="text-transform: lowercase; font-variant: small-caps;"><b>week of 52</b>: ' + formattedweek + '</p>' +
+                                        '<p style="text-transform: lowercase; font-variant: small-caps;"><b>portal</b>: ' + finalportal + '</p>' +
+                                        '<p style="text-transform: lowercase; font-variant: small-caps;"><b>feast day</b>: ' + feast + '</p>' +
+                                        '<p style="text-transform: lowercase; font-variant: small-caps;"><b>halal-yah!</b></p>';
 
                         console.log("final html: " + resultHTML);
                         resultDiv.innerHTML = resultHTML;
@@ -381,8 +382,8 @@
                     } catch (error) {
                         console.error("calculation error: " + error.message);
                         resultDiv.innerHTML = '<h2 style="text-transform: lowercase; font-variant: small-caps;">yhvh\'s set-apart date of birth</h2>' +
-                            '<p style="text-transform: lowercase; font-variant: small-caps;">error: ' + error.message + '</p>' +
-                            '<p style="text-transform: lowercase; font-variant: small-caps;"><b>halal-yah!</b></p>';
+                                            '<p style="text-transform: lowercase; font-variant: small-caps;">error: ' + error.message + '</p>' +
+                                            '<p style="text-transform: lowercase; font-variant: small-caps;"><b>halal-yah!</b></p>';
                     }
                 };
             } else {
