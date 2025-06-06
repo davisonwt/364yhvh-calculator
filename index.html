@@ -4,6 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>yhvh’s set-apart times</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
         body {
             font-family: 'times new roman', times, serif;
@@ -23,7 +24,7 @@
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             text-align: center;
         }
-        h1, h2, p, label, button {
+        h1, h2, p, label, button, .wheel-item {
             text-transform: lowercase;
             font-variant: small-caps;
         }
@@ -42,14 +43,59 @@
         }
         label {
             display: block;
-            margin-bottom: 5px;
-        }
-        input[type="date"], input[type="text"] {
-            width: 100%;
-            padding: 8px;
             margin-bottom: 10px;
+        }
+        .wheel-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        .wheel {
+            width: 30%;
+            height: 150px;
+            overflow-y: scroll;
             border: 1px solid #ccc;
             border-radius: 4px;
+            margin: 0 1%;
+            position: relative;
+            -webkit-overflow-scrolling: touch;
+            scroll-snap-type: y mandatory;
+        }
+        .wheel::-webkit-scrollbar {
+            display: none; /* hide scrollbar for cleaner look */
+        }
+        .wheel-item {
+            height: 50px;
+            line-height: 50px;
+            text-align: center;
+            font-size: 16px;
+            scroll-snap-align: center;
+        }
+        .wheel::before, .wheel::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            right: 0;
+            height: 50px;
+            background: linear-gradient(to bottom, rgba(255, 255, 255, 0.9), transparent);
+            pointer-events: none;
+        }
+        .wheel::before {
+            top: 0;
+        }
+        .wheel::after {
+            bottom: 0;
+            background: linear-gradient(to top, rgba(255, 255, 255, 0.9), transparent);
+        }
+        .wheel-selection {
+            position: absolute;
+            top: 50px;
+            left: 0;
+            right: 0;
+            height: 50px;
+            border-top: 1px solid #ccc;
+            border-bottom: 1px solid #ccc;
+            pointer-events: none;
         }
         button {
             padding: 10px 20px;
@@ -60,6 +106,10 @@
         }
         #calculatebtn {
             background-color: #4caf50;
+            color: white;
+        }
+        #downloadbtn {
+            background-color: #008cba;
             color: white;
         }
         button:hover {
@@ -75,15 +125,93 @@
     <div class="container">
         <h1>yhvh’s set-apart times</h1>
         <p class="subtitle">want to know your set-apart date of birth?</p>
-        <label for="birthdate">enter your birth date:</label>
-        <input type="date" id="birthdate">
+        <label>enter your birth date:</label>
+        <div class="wheel-container">
+            <div class="wheel" id="yearwheel">
+                <div class="wheel-selection"></div>
+            </div>
+            <div class="wheel" id="monthwheel">
+                <div class="wheel-selection"></div>
+            </div>
+            <div class="wheel" id="daywheel">
+                <div class="wheel-selection"></div>
+            </div>
+        </div>
         <button id="calculatebtn">calculate</button>
+        <button id="downloadbtn">download pdf</button>
         <div id="result"></div>
     </div>
     <script>
         // main script
         document.addEventListener('DOMContentLoaded', function() {
             console.log("inline script: dom content loaded");
+
+            // populate wheels
+            var yearwheel = document.getElementById('yearwheel');
+            var monthwheel = document.getElementById('monthwheel');
+            var daywheel = document.getElementById('daywheel');
+
+            // years from 1900 to 2025
+            for (var y = 1900; y <= 2025; y++) {
+                var div = document.createElement('div');
+                div.className = 'wheel-item';
+                div.textContent = y;
+                yearwheel.appendChild(div);
+            }
+
+            // months 1 to 12
+            for (var m = 1; m <= 12; m++) {
+                var div = document.createElement('div');
+                div.className = 'wheel-item';
+                div.textContent = m;
+                monthwheel.appendChild(div);
+            }
+
+            // initialize days (default to 31 for now)
+            function updatedays(year, month) {
+                var daysinmonth = new Date(year || 2000, month || 1, 0).getDate();
+                daywheel.innerHTML = '<div class="wheel-selection"></div>';
+                for (var d = 1; d <= daysinmonth; d++) {
+                    var div = document.createElement('div');
+                    div.className = 'wheel-item';
+                    div.textContent = d;
+                    daywheel.appendChild(div);
+                }
+            }
+
+            // get selected value from wheel
+            function getselectedvalue(wheel) {
+                var items = wheel.querySelectorAll('.wheel-item');
+                var scrolltop = wheel.scrollTop;
+                var itemheight = 50; // matches .wheel-item height
+                var index = Math.round(scrolltop / itemheight);
+                return items[index] ? items[index].textContent : null;
+            }
+
+            // update days when year or month changes
+            yearwheel.onscroll = function() {
+                var year = getselectedvalue(yearwheel);
+                var month = getselectedvalue(monthwheel);
+                if (year && month) {
+                    updatedays(parseInt(year), parseInt(month));
+                }
+            };
+            monthwheel.onscroll = function() {
+                var year = getselectedvalue(yearwheel);
+                var month = getselectedvalue(monthwheel);
+                if (year && month) {
+                    updatedays(parseInt(year), parseInt(month));
+                }
+            };
+
+            // initialize days
+            updatedays();
+
+            // scroll to a default value (e.g., 2000-01-01)
+            yearwheel.scrollTop = (2000 - 1900) * 50; // 2000
+            monthwheel.scrollTop = (1 - 1) * 50; // january
+            daywheel.scrollTop = (1 - 1) * 50; // 1st
+
             var calculatebtn = document.getElementById('calculatebtn');
             if (calculatebtn) {
                 calculatebtn.onclick = function() {
@@ -91,14 +219,26 @@
                     var resultDiv = document.getElementById('result');
                     try {
                         console.log("starting calculation");
-                        var birthdateinput = document.getElementById('birthdate').value;
-                        console.log("input date: " + birthdateinput);
-                        if (!birthdateinput) {
+                        var year = getselectedvalue(yearwheel);
+                        var month = getselectedvalue(monthwheel);
+                        var day = getselectedvalue(daywheel);
+                        if (!year || !month || !day) {
                             resultDiv.innerHTML = '<h2 style="text-transform: lowercase; font-variant: small-caps;">yhvh\'s set-apart date of birth</h2>' +
-                                '<p style="text-transform: lowercase; font-variant: small-caps;">please enter a valid date.</p>';
+                                '<p style="text-transform: lowercase; font-variant: small-caps;">please select a valid date.</p>' +
+                                '<p style="text-transform: lowercase; font-variant: small-caps;"><b>halal-yah!</b></p>';
                             return;
                         }
+                        var birthdateinput = year + '-' + month.padStart(2, '0') + '-' + day.padStart(2, '0');
+                        console.log("input date: " + birthdateinput);
+
                         var birthdate = new Date(birthdateinput);
+                        if (isNaN(birthdate) || birthdate > new Date()) {
+                            resultDiv.innerHTML = '<h2 style="text-transform: lowercase; font-variant: small-caps;">yhvh\'s set-apart date of birth</h2>' +
+                                '<p style="text-transform: lowercase; font-variant: small-caps;">please select a valid past date.</p>' +
+                                '<p style="text-transform: lowercase; font-variant: small-caps;"><b>halal-yah!</b></p>';
+                            return;
+                        }
+
                         var birthdatestring = birthdate.toISOString().split('T')[0];
                         console.log("formatted date: " + birthdatestring);
 
@@ -138,7 +278,7 @@
                         var finaldayofyear = match.dayofyear;
                         var feast = "none"; // default to "none" if no feast
 
-                        console.log("final values - year: " + finalyhvhyear + ", month: " + finalyhvhmonth + ", day: " + finalyhvhday);
+                        console.log("final values - year: " + finalyhvhyear + ", month: " + finalyhvhmonth + ", day: " + finalyhvhday + ", feast: " + feast);
 
                         var formattedday = "day " + finaldayofyear + " of 364";
                         var formattedweek = "week " + finalweek + " of 52";
@@ -168,10 +308,28 @@
             } else {
                 console.error("inline script: calculate button not found");
             }
+
+            var downloadbtn = document.getElementById('downloadbtn');
+            if (downloadbtn) {
+                downloadbtn.onclick = function() {
+                    console.log("inline script: download button clicked");
+                    if (window.jspdf && window.jspdf.jsPDF) {
+                        var doc = new window.jspdf.jsPDF();
+                        var resulttext = document.getElementById('result').innerText;
+                        doc.setFontSize(12);
+                        doc.text(resulttext, 10, 10);
+                        doc.save('yhvh_set-apart_date.pdf');
+                        console.log("inline script: pdf downloaded");
+                    } else {
+                        console.error("inline script: jspdf not loaded");
+                        alert("pdf library not loaded. please check your internet connection and try again.");
+                    }
+                };
+            } else {
+                console.error("inline script: download button not found");
+            }
         });
     </script>
-</body>
-</html>
 </body>
 </html>
 
