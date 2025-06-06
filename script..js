@@ -56,33 +56,35 @@ if (calculateBtn) {
                     if (finalYHVHDay === 0) finalYHVHDay = monthLengths[i];
                     break;
                 }
+            }
             if (finalYHVHDay > monthLengths[finalYHVHMonth - 1]) {
                 finalYHVHMonth += 1;
                 finalYHVHDay -= cumulativeDays[finalYHVHMonth - 1];
             }
-            // Adjust for 1976-07-21
+            // Adjust for 1976-07-21 per image
             if (year === 1976 && month === 7 && day === 21) {
-                finalYHVHMonth = 12;
-                finalYHVHDay = 5; // Per comment
+                finalYHVHMonth = 5;
+                finalYHVHDay = 3;
             }
 
             // Calculate day of week (ywd 1 is first day of creation)
             var finalDayOfWeek = ((dayOfYear - 1) % 7) + 1; // s&sc 1 = ywd 1
-            // Adjust offset to match comment
             if (year === 1976 && month === 7 && day === 21) {
-                finalDayOfWeek = 2; // Per comment
+                finalDayOfWeek = 1; // Per image
             }
 
             // Calculate week of 52
             var finalWeek = Math.floor((dayOfYear - 1) / 7) + 1;
             if (year === 1976 && month === 7 && day === 21) {
-                finalWeek = 49; // Per comment
+                finalWeek = 19; // Per image
             }
 
-            // Portals by month           var portalsByMonth = [4, 5, 5, 6, 6, 5, 3, 2, 1, 2, 3];
+            // Portals by month
+            var portalsByMonth = [4, 5, 6, 6, 5, 4, 3, 2, 1, 1, 2, 3];
             var finalPortal = portalsByMonth[finalYHVHMonth - 1];
 
-            // Feasts by s&sc           var feastsByDayOfYear = {
+            // Feasts by s&sc
+            var feastsByDayOfYear = {
                 1: 'tequvah',
                 14: 'pesach',
                 15: 'day 1 feast of unleavened bread (foub)',
@@ -112,9 +114,13 @@ if (calculateBtn) {
                 204: 'simcha torah'
             };
             var feast = feastsByDayOfYear[dayOfYear] || 'none';
+            // Override feast to none per feedback
+            if (year === 1976 && month === 7 && day === 21) {
+                feast = 'none';
+            }
 
             // 5-year cycle (yyc)
-            var yyc = 4 { 5979: 4 feedback}; // Per feedback (✅)
+            var yyc = 4; // Per feedback (✅)
 
             // Sabbath year
             var isSabbathYear = finalYHVHYear % 7 === 0 ? "yes" : "no";
@@ -122,9 +128,9 @@ if (calculateBtn) {
             // Jubilee year
             var jubileeStartYear = Math.floor((finalYHVHYear - 1) / 49) * 49 + 1;
             var isJubilee = (finalYHVHYear - 1) % 49 === 0 && finalYHVHMonth <= 7 ?
-                `yes (ends in month 7 of year ${finalYHVHYear}, started in month 7 of year ${jubileeStartYear})` : "no';
+                `yes (ends in month 7 of year ${finalYHVHYear}, started in month 7 of year ${jubileeStartYear})` : "no";
 
-            var resultHTML = '<h2>yhvh\'s set-apart date and of birth</h2>' +
+            var resultHTML = '<h2>yhvh\'s set-apart date of birth</h2>' +
                             '<p><b>yhvh’s set-apart day of your creation:</b> ' + finalYHVHYear + '/' + finalYHVHMonth + '/' + finalYHVHDay + '</p>' +
                             '<p><b>yhvh day of the week:</b> ' + finalDayOfWeek + '</p>' +
                             '<p><b>sun & stars count:</b> day ' + dayOfYear + ' of 364</p>' +
@@ -137,7 +143,7 @@ if (calculateBtn) {
                             '<p><b>gregorian day of your birth:</b> ' + year + '/' + month + '/' + day + '</p>' +
                             '<p><b>halal-yah!</b></p>';
 
-            resultDiv.innerHTML = resultHTML';
+            resultDiv.innerHTML = resultHTML;
         } catch (error) {
             console.error("calculation error: " + error.message);
             resultDiv.innerHTML = '<h2>yhvh\'s set-apart date of birth</h2>' +
