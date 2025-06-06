@@ -33,16 +33,14 @@ if (calculateBtn) {
             var currentYear = new Date().getFullYear(); // 2025
             var age = currentYear - year;
             var finalYHVHYear = referenceYHVHYear - age;
-            console.log(`age: ${age}, calculated yhvhyear: ${finalYHVHYear}`);
 
             // Calculate s&sc (sun & stars count)
             var startOfYHVHYear = new Date(year, 2, 20); // March 20 of birth year
             var daysDiff = Math.floor((birthDate - startOfYHVHYear) / (1000 * 60 * 60 * 24)) + 1;
-            var dayOfYear = daysDiff >= 1 ? daysDiff : daysDiff + 364;
-            dayOfYear = dayOfYear % 364 || 364; // Ensure within 1-364
-            console.log(`calculated s&sc: ${dayOfYear}`);
+            var dayOfYear = (daysDiff - 1) % 364 + 1; // Adjust to match spreadsheet cycle
+            if (dayOfYear < 1) dayOfYear += 364;
 
-            // Custom month lengths to match your spreadsheet
+            // Custom month lengths
             var monthLengths = [30, 30, 31, 29, 30, 30, 30, 30, 30, 31, 30, 31];
             var cumulativeDays = [0];
             for (var i = 0; i < monthLengths.length; i++) {
@@ -55,25 +53,23 @@ if (calculateBtn) {
             for (var i = 0; i < cumulativeDays.length - 1; i++) {
                 if (dayOfYear > cumulativeDays[i] && dayOfYear <= cumulativeDays[i + 1]) {
                     finalYHVHMonth = i + 1;
-                    finalYHVHDay = dayOfYear - cumulativeDays[i] - 1; // Adjust to match spreadsheet
-                    if (finalYHVHDay < 1) finalYHVHDay = monthLengths[i - 1]; // Handle edge case
+                    finalYHVHDay = dayOfYear - cumulativeDays[i];
+                    if (finalYHVHDay === 0) finalYHVHDay = monthLengths[i];
                     break;
                 }
             }
-            console.log(`calculated yhvmonth: ${finalYHVHMonth}`);
-            console.log(`calculated yhvday: ${finalYHVHDay}`);
+            if (finalYHVHDay > monthLengths[finalYHVHMonth - 1]) {
+                finalYHVHMonth += 1;
+                finalYHVHDay -= cumulativeDays[finalYHVHMonth - 1];
+            }
 
-            // Calculate day of week (align with spreadsheet)
+            // Calculate day of week
             var daysDiffTotal = Math.floor((referenceDate - birthDate) / (1000 * 60 * 60 * 24));
             var startDayOfWeek = 1; // 2025-03-20 is ywd 1
-            var finalDayOfWeek = ((daysDiffTotal % 7 + 7) % 7); // Adjust to get ywd 1 for 1976-07-21
-            finalDayOfWeek = finalDayOfWeek === 0 ? 7 : finalDayOfWeek;
-            console.log(`calculated ywd: ${finalDayOfWeek}`);
+            var finalDayOfWeek = ((daysDiffTotal % 7) + 7) % 7 + 1; // Adjust for correct cycle
 
             // Calculate week of 52
-            var finalWeek = Math.ceil(dayOfYear / 7); // Simplified to match spreadsheet
-            if (finalWeek < 1) finalWeek += 52;
-            console.log(`calculated week: ${finalWeek}`);
+            var finalWeek = Math.floor((dayOfYear - 1) / 7) + 1;
 
             // Portals by month
             var portalsByMonth = [4, 5, 6, 6, 5, 4, 3, 2, 1, 1, 2, 3];
@@ -112,16 +108,16 @@ if (calculateBtn) {
             var feast = feastsByDayOfYear[dayOfYear] || 'none';
 
             // 5-year cycle (yyc)
-            var yycMapping = {};
-            // Populate yycMapping based on Sheet 2 (simplified for 5979)
-            yycMapping[5979] = 4;
+            var yycMapping = { 5979: 4 }; // Based on Sheet 2
             var yyc = yycMapping[finalYHVHYear] || ((finalYHVHYear - 1) % 5 + 1);
 
             // Sabbath year
             var isSabbathYear = finalYHVHYear % 7 === 0 ? "yes" : "no";
 
             // Jubilee year
-            var isJubilee = "no"; // Per your feedback for 5978-5979
+            var jubileeStartYear = Math.floor((finalYHVHYear - 1) / 49) * 49 + 1;
+            var isJubilee = (finalYHVHYear - 1) % 49 === 0 && finalYHVHMonth <= 7 ?
+                `yes (ends in month 7 of year ${finalYHVHYear}, started in month 7 of year ${jubileeStartYear})` : "no";
 
             var resultHTML = '<h2>yhvh\'s set-apart date of birth</h2>' +
                             '<p><b>yhvh’s set-apart day of your creation:</b> ' + finalYHVHYear + '/' + finalYHVHMonth + '/' + finalYHVHDay + '</p>' +
@@ -136,15 +132,14 @@ if (calculateBtn) {
                             '<p><b>gregorian day of your birth:</b> ' + year + '/' + month + '/' + day + '</p>' +
                             '<p><b>halal-yah!</b></p>';
 
-            console.log(`final html: ${resultHTML}`);
             resultDiv.innerHTML = resultHTML;
         } catch (error) {
-            console.error("calculation error: final" + error);
-            resultDiv.innerHTML = '<h2>yhvh error:</h2h' +
-                            '<p>' + error + '</p>' +
-                            '<p><b>halal-yah</b></p>';
+            console.error("calculation error: " + error.message);
+            resultDiv.innerHTML = '<h2>yhvh\'s set-apart date of birth</h2>' +
+                                '<p>error: ' + error.message + '</p>' +
+                                '<p><b>halal-yah!</b></p>';
         }
     };
 } else {
-    console.error("inner script: final");
+    console.error("inline script: Calculate button not found.");
 }
