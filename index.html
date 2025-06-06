@@ -74,25 +74,17 @@
             font-size: 16px;
             opacity: 0.5; /* dim non-selected items */
         }
-        .wheel-button {
+        .wheel-selection {
             position: absolute;
             top: 50px; /* middle of 150px height */
             left: 0;
             right: 0;
             height: 50px;
-            background-color: #ddd;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 16px;
+            border-top: 1px solid #ccc;
+            border-bottom: 1px solid #ccc;
+            background-color: rgba(221, 221, 221, 0.3); /* subtle highlight */
             z-index: 1;
-            user-select: none;
-        }
-        .wheel-button:hover {
-            background-color: #ccc;
+            pointer-events: none; /* ensure it doesn’t block scrolling */
         }
         .wheel-label {
             font-size: 14px;
@@ -136,19 +128,19 @@
                 <div class="wheel-items">
                     <div class="wheel-items-inner" id="yearitems"></div>
                 </div>
-                <div class="wheel-button" id="yearbutton">2000</div>
+                <div class="wheel-selection"></div>
             </div>
             <div class="wheel" id="monthwheel">
                 <div class="wheel-items">
                     <div class="wheel-items-inner" id="monthitems"></div>
                 </div>
-                <div class="wheel-button" id="monthbutton">1</div>
+                <div class="wheel-selection"></div>
             </div>
             <div class="wheel" id="daywheel">
                 <div class="wheel-items">
                     <div class="wheel-items-inner" id="dayitems"></div>
                 </div>
-                <div class="wheel-button" id="daybutton">1</div>
+                <div class="wheel-selection"></div>
             </div>
         </div>
         <div class="wheel-container">
@@ -173,16 +165,9 @@
             var selectedmonth = 1;
             var selectedday = 1;
 
-            var finalizedyear = null;
-            var finalizedmonth = null;
-            var finalizedday = null;
-
             var yearitems = document.getElementById('yearitems');
             var monthitems = document.getElementById('monthitems');
             var dayitems = document.getElementById('dayitems');
-            var yearbutton = document.getElementById('yearbutton');
-            var monthbutton = document.getElementById('monthbutton');
-            var daybutton = document.getElementById('daybutton');
 
             // populate wheels with all items for scrolling effect
             function populatewheelitems(container, values) {
@@ -195,6 +180,13 @@
                 container.style.transform = `translateY(${transformvalue}px)`;
             }
 
+            // get selected value
+            function getselectedvalue(container, values) {
+                var index = Math.round(-parseFloat(container.style.transform.replace('translateY(', '').replace('px)', '')) / 50 + 1);
+                index = Math.max(0, Math.min(index, values.length - 1));
+                return values[index];
+            }
+
             // update days based on year and month
             function updatedays(year, month) {
                 var daysinmonth = new Date(year, month, 0).getDate();
@@ -203,12 +195,10 @@
                 populatewheelitems(dayitems, days);
                 var dayindex = days.indexOf(selectedday);
                 updatewheelposition(dayitems, dayindex, 50);
-                daybutton.textContent = selectedday;
-                finalizedday = null; // reset finalized value
             }
 
             // handle wheel updates
-            function setupwheel(container, button, values, selectedvalue, onupdate) {
+            function setupwheel(container, values, selectedvalue, onupdate) {
                 var index = values.indexOf(selectedvalue);
                 populatewheelitems(container, values);
                 updatewheelposition(container, index, 50);
@@ -217,7 +207,9 @@
                 let currenty = 0;
                 let isdragging = false;
 
+                // mouse events for desktop
                 container.parentElement.addEventListener('mousedown', (e) => {
+                    e.preventDefault();
                     isdragging = true;
                     starty = e.clientY;
                 });
@@ -230,9 +222,8 @@
                         newindex = Math.max(0, Math.min(newindex, values.length - 1));
                         if (newindex !== index) {
                             index = newindex;
-                            selectedvalue = values[index];
-                            updatewheelposition(container, index, 50);
-                            button.textContent = selectedvalue;
+                            selectedvalue = values[newindex];
+                            updatewheelposition(container, newindex, 50);
                             onupdate(selectedvalue);
                         }
                     }
@@ -251,38 +242,50 @@
                     index = Math.max(0, Math.min(index + (e.deltaY > 0 ? 1 : -1), values.length - 1));
                     selectedvalue = values[index];
                     updatewheelposition(container, index, 50);
-                    button.textContent = selectedvalue;
                     onupdate(selectedvalue);
                 });
 
-                // confirm selection on button click
-                button.addEventListener('click', function() {
-                    console.log("finalized " + button.id.replace('button', '') + ": " + selectedvalue);
-                    button.style.backgroundColor = '#bbb'; // visual feedback
-                    setTimeout(() => button.style.backgroundColor = '#ddd', 200);
-                    if (button.id === 'yearbutton') finalizedyear = selectedvalue;
-                    if (button.id === 'monthbutton') finalizedmonth = selectedvalue;
-                    if (button.id === 'daybutton') finalizedday = selectedvalue;
+                // touch events for mobile
+                container.parentElement.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    isdragging = true;
+                    starty = e.touches[0].clientY;
+                });
+
+                container.parentElement.addEventListener('touchmove', (e) => {
+                    if (isdragging) {
+                        currenty = e.touches[0].clientY;
+                        let diff = starty - currenty;
+                        let newindex = Math.round(index - (diff / 50));
+                        newindex = Math.max(0, Math.min(newindex, values.length - 1));
+                        if (newindex !== index) {
+                            index = newindex;
+                            selectedvalue = values[newindex];
+                            updatewheelposition(container, newindex, 50);
+                            onupdate(selectedvalue);
+                        }
+                    }
+                });
+
+                container.parentElement.addEventListener('touchend', () => {
+                    isdragging = false;
                 });
 
                 return selectedvalue;
             }
 
             // initialize wheels
-            selectedyear = setupwheel(yearitems, yearbutton, years, selectedyear, function(value) {
+            selectedyear = setupwheel(yearitems, years, selectedyear, function(value) {
                 selectedyear = value;
-                finalizedyear = null; // reset finalized value
                 updatedays(selectedyear, selectedmonth);
             });
-            selectedmonth = setupwheel(monthitems, monthbutton, months, selectedmonth, function(value) {
+            selectedmonth = setupwheel(monthitems, months, selectedmonth, function(value) {
                 selectedmonth = value;
-                finalizedmonth = null; // reset finalized value
                 updatedays(selectedyear, selectedmonth);
             });
             updatedays(selectedyear, selectedmonth);
-            selectedday = setupwheel(dayitems, daybutton, Array.from({length: 31}, (_, i) => i + 1), selectedday, function(value) {
+            selectedday = setupwheel(dayitems, Array.from({length: 31}, (_, i) => i + 1), selectedday, function(value) {
                 selectedday = value;
-                finalizedday = null; // reset finalized value
             });
 
             var calculatebtn = document.getElementById('calculatebtn');
@@ -292,18 +295,12 @@
                     var resultDiv = document.getElementById('result');
                     try {
                         console.log("starting calculation");
-                        var year = finalizedyear || selectedyear;
-                        var month = finalizedmonth || selectedmonth;
-                        var day = finalizedday || selectedday;
+                        var year = getselectedvalue(yearitems, years);
+                        var month = getselectedvalue(monthitems, months);
+                        var day = getselectedvalue(dayitems, Array.from({length: new Date(year, month, 0).getDate()}, (_, i) => i + 1));
                         if (!year || !month || !day) {
                             resultDiv.innerHTML = '<h2 style="text-transform: lowercase; font-variant: small-caps;">yhvh\'s set-apart date of birth</h2>' +
                                 '<p style="text-transform: lowercase; font-variant: small-caps;">please select a valid date.</p>' +
-                                '<p style="text-transform: lowercase; font-variant: small-caps;"><b>halal-yah!</b></p>';
-                            return;
-                        }
-                        if (!finalizedyear || !finalizedmonth || !finalizedday) {
-                            resultDiv.innerHTML = '<h2 style="text-transform: lowercase; font-variant: small-caps;">yhvh\'s set-apart date of birth</h2>' +
-                                '<p style="text-transform: lowercase; font-variant: small-caps;">please confirm all selections by clicking the buttons.</p>' +
                                 '<p style="text-transform: lowercase; font-variant: small-caps;"><b>halal-yah!</b></p>';
                             return;
                         }
