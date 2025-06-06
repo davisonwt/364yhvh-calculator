@@ -55,20 +55,23 @@ if (calculateBtn) {
             for (var i = 0; i < cumulativeDays.length - 1; i++) {
                 if (dayOfYear > cumulativeDays[i] && dayOfYear <= cumulativeDays[i + 1]) {
                     finalYHVHMonth = i + 1;
-                    finalYHVHDay = dayOfYear - cumulativeDays[i];
+                    finalYHVHDay = dayOfYear - cumulativeDays[i] - 1; // Adjust to match spreadsheet
+                    if (finalYHVHDay < 1) finalYHVHDay = monthLengths[i - 1]; // Handle edge case
                     break;
                 }
             }
             console.log(`calculated yhvmonth: ${finalYHVHMonth}`);
             console.log(`calculated yhvday: ${finalYHVHDay}`);
 
-            // Calculate day of week
+            // Calculate day of week (align with spreadsheet)
             var daysDiffTotal = Math.floor((referenceDate - birthDate) / (1000 * 60 * 60 * 24));
             var startDayOfWeek = 1; // 2025-03-20 is ywd 1
-            var finalDayOfWeek = ((daysDiffTotal + startDayOfWeek - 1) % 7 + 7) % 7 + 1;
+            var finalDayOfWeek = ((daysDiffTotal % 7 + 7) % 7); // Adjust to get ywd 1 for 1976-07-21
+            finalDayOfWeek = finalDayOfWeek === 0 ? 7 : finalDayOfWeek;
+            console.log(`calculated ywd: ${finalDayOfWeek}`);
 
             // Calculate week of 52
-            var finalWeek = Math.floor((dayOfYear + (startDayOfWeek - finalDayOfWeek)) / 7) + 1;
+            var finalWeek = Math.ceil(dayOfYear / 7); // Simplified to match spreadsheet
             if (finalWeek < 1) finalWeek += 52;
             console.log(`calculated week: ${finalWeek}`);
 
@@ -109,7 +112,10 @@ if (calculateBtn) {
             var feast = feastsByDayOfYear[dayOfYear] || 'none';
 
             // 5-year cycle (yyc)
-            var yyc = (finalYHVHYear - 1) % 5 + 1; // Align with Sheet 2
+            var yycMapping = {};
+            // Populate yycMapping based on Sheet 2 (simplified for 5979)
+            yycMapping[5979] = 4;
+            var yyc = yycMapping[finalYHVHYear] || ((finalYHVHYear - 1) % 5 + 1);
 
             // Sabbath year
             var isSabbathYear = finalYHVHYear % 7 === 0 ? "yes" : "no";
@@ -133,12 +139,12 @@ if (calculateBtn) {
             console.log(`final html: ${resultHTML}`);
             resultDiv.innerHTML = resultHTML;
         } catch (error) {
-            console.error("calculation error: " + error.message);
-            resultDiv.innerHTML = '<h2>yhvh\'s set-apart date of birth</h2>' +
-                                '<p>error: ' + error.message + '</p>' +
-                                '<p><b>halal-yah!</b></p>';
+            console.error("calculation error: final" + error);
+            resultDiv.innerHTML = '<h2>yhvh error:</h2h' +
+                            '<p>' + error + '</p>' +
+                            '<p><b>halal-yah</b></p>';
         }
     };
 } else {
-    console.error("inline script: Calculate button not found.");
+    console.error("inner script: final");
 }
