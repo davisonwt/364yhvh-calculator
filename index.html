@@ -70,6 +70,7 @@
             text-align: center;
             font-size: 16px;
             scroll-snap-align: center;
+            cursor: pointer; /* indicate clickability */
         }
         .wheel::before, .wheel::after {
             content: '';
@@ -177,6 +178,22 @@
                     div.textContent = d;
                     daywheel.appendChild(div);
                 }
+                // reattach click handlers to new day items
+                attachclickhandlers(daywheel);
+            }
+
+            // attach click handlers to wheel items
+            function attachclickhandlers(wheel) {
+                var items = wheel.querySelectorAll('.wheel-item');
+                items.forEach(function(item, index) {
+                    item.onclick = function() {
+                        var itemheight = 50; // matches .wheel-item height
+                        wheel.scrollTo({
+                            top: index * itemheight,
+                            behavior: 'smooth'
+                        });
+                    };
+                });
             }
 
             // get selected value from wheel
@@ -204,7 +221,11 @@
                 }
             };
 
-            // initialize days
+            // attach click handlers to year and month wheels
+            attachclickhandlers(yearwheel);
+            attachclickhandlers(monthwheel);
+
+            // initialize days and attach click handlers
             updatedays();
 
             // scroll to a default value (e.g., 2000-01-01)
@@ -330,6 +351,8 @@
             }
         });
     </script>
+</body>
+</html>
 </body>
 </html>
 
