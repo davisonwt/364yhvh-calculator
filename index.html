@@ -185,7 +185,7 @@
                 var transform = container.style.transform || 'translateY(0px)';
                 var translateY = parseFloat(transform.replace('translateY(', '').replace('px)', ''));
                 var index = Math.round(-translateY / 50 + 1);
-                index = Math.max(0, Math.min(index, values.length - 1)); // Fixed: Added missing parenthesis
+                index = Math.max(0, Math.min(index, values.length - 1));
                 console.log(`selected ${label}: ${values[index]}`);
                 return values[index];
             }
@@ -265,7 +265,7 @@
                             onUpdate(selectedValue, newIndex);
                         }
                     }
-                }); // Removed extra closing parenthesis
+                });
 
                 container.parentElement.addEventListener('touchend', () => {
                     isDragging = false;
@@ -314,7 +314,7 @@
                             return;
                         }
 
-                        // Reference: 2025-03-20 is YHVH year 6028, s&sc 1
+                        // Reference: 2025-03-20 is YHVH year 6028, s&sc 1, ywd 4
                         var referenceDate = new Date(2025, 2, 20); // March 20, 2025
                         var referenceYHVHYear = 6028;
                         var daysPerYHVHYear = 364;
@@ -376,11 +376,14 @@
                         console.log(`total yhvhyears: ${totalYHVHYears}`);
                         console.log(`day of yhvhyear: ${dayOfYear}`);
 
-                        // Adjust for 1969-05-06 (temporary override until general formula is confirmed)
-                        if (year === 1969 && month === 5 && day === 6) {
-                            finalYHVHYear = 5970;
-                            dayOfYear = 48;
-                        }
+                        // Calculate day of week
+                        var startDayOfWeek = 4; // March 20, 2025, is ywd 4 (Thursday)
+                        var finalDayOfWeek = ((daysDiff + startDayOfWeek - 1) % 7 + 7) % 7 + 1;
+                        console.log(`calculated day of week: ${finalDayOfWeek}`);
+
+                        // Calculate week of 52
+                        var finalWeek = Math.floor((dayOfYear + (4 - finalDayOfWeek)) / 7) + 1;
+                        console.log(`calculated week: ${finalWeek}`);
 
                         // Calculate month and day from s&sc
                         var finalYHVHMonth = 1;
@@ -416,18 +419,6 @@
                         } else if (finalYHVHYear === 6028 && finalYHVHMonth <= 7) {
                             isJubilee = "yes (special case: ends in month 7 of year 6028, started in month 7 of year 6027)";
                         }
-
-                        // Day of week
-                        var startDayOfWeek = 4; // March 20, 2025, is Thursday (ywd 4)
-                        var finalDayOfWeek = ((daysDiff + startDayOfWeek - 1) % 7 + 7) % 7 + 1;
-                        if (year === 1969 && month === 5 && day === 6) {
-                            finalDayOfWeek = 2; // From column G
-                        }
-                        console.log(`calculated day of week: ${finalDayOfWeek}`);
-
-                        // Week of 52
-                        var finalWeek = Math.ceil(dayOfYear / 7);
-                        console.log(`calculated week: ${finalWeek}`);
 
                         // Portals
                         var finalPortal = portalsByMonth[finalYHVHMonth - 1];
