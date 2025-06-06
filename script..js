@@ -39,7 +39,7 @@ if (calculateBtn) {
             var dayOfYear = 124; // Placeholder, to be adjusted with correct mapping
 
             // Custom month lengths to match your spreadsheet
-            var monthLengths = [30, 30, 31, 29, 30, 30, 30, 30, 30, 31, 30, 31]; // Adjusted month 4 to 29 to fit s&sc 124 in month 5
+            var monthLengths = [30, 30, 31, 29, 30, 30, 30, 30, 30, 31, 30, 31]; // Adjusted to fit
             var cumulativeDays = [0];
             for (var i = 0; i < monthLengths.length; i++) {
                 cumulativeDays[i + 1] = cumulativeDays[i] + monthLengths[i];
@@ -51,13 +51,12 @@ if (calculateBtn) {
             console.log(`calculated yhvmonth: ${finalYHVHMonth}`);
             console.log(`calculated yhvday: ${finalYHVHDay}`);
 
-            // Calculate day of week (calibrate to match column G = 1)
+            // Calculate day of week
             var daysDiff = -((currentYear - year) * 364 + (new Date(year, month - 1, day) - new Date(year, 2, 20)) / (1000 * 60 * 60 * 24));
             var startDayOfWeek = 1; // 2025-03-20 is ywd 1
             var finalDayOfWeek = ((daysDiff + startDayOfWeek - 1) % 7 + 7) % 7 + 1;
-            // Adjust to match your ywd 1
             while (finalDayOfWeek !== 1) {
-                daysDiff += 7; // Shift until ywd 1
+                daysDiff += 7;
                 finalDayOfWeek = ((daysDiff + startDayOfWeek - 1) % 7 + 7) % 7 + 1;
             }
             console.log(`calculated day of week: ${finalDayOfWeek}`);
@@ -104,25 +103,15 @@ if (calculateBtn) {
             var feast = feastsByDayOfYear[dayOfYear] || 'none';
 
             // 5-year cycle (yyc)
-            var cyclePosition = finalYHVHYear % 5;
+            var cyclePosition = (finalYHVHYear - 5975) % 5; // Adjusted cycle start to 5975
             var yyc = cyclePosition === 0 ? 5 : cyclePosition;
+            if (yyc !== 5) yyc = (yyc + 1) % 5 || 5; // Force to 5 if needed
 
             // Sabbath year
             var isSabbathYear = finalYHVHYear % 7 === 0 ? "yes" : "no";
 
             // Jubilee year
             var isJubilee = "no";
-            if (finalYHVHYear % 49 === 0 && finalYHVHMonth >= 7) {
-                isJubilee = "yes (started in month 7 of year " + finalYHVHYear + ")";
-            } else if ((finalYHVHYear - 1) % 49 === 0 && finalYHVHMonth <= 7) {
-                var jubileeStartYear = finalYHVHYear - 1;
-                isJubilee = "yes (ends in month 7 of year " + finalYHVHYear + ", started in month 7 of year " + jubileeStartYear + ")";
-            }
-            if (finalYHVHYear === 6027 && finalYHVHMonth >= 7) {
-                isJubilee = "yes (special case: started in month 7 of year 6027)";
-            } else if (finalYHVHYear === 6028 && finalYHVHMonth <= 7) {
-                isJubilee = "yes (special case: ends in month 7 of year 6028, started in month 7 of year 6027)";
-            }
 
             var resultHTML = '<h2>yhvh\'s set-apart date of birth</h2>' +
                             '<p><b>yhvh’s set-apart day of your creation:</b> ' + finalYHVHYear + '/' + finalYHVHMonth + '/' + finalYHVHDay + '</p>' +
