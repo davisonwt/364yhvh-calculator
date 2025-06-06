@@ -24,7 +24,7 @@
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             text-align: center;
         }
-        h1, h2, p, label, button, .wheel-item {
+        h1, h2, p, label, button, .wheel-item, .wheel-label {
             text-transform: lowercase;
             font-variant: small-caps;
         }
@@ -98,6 +98,11 @@
             border-bottom: 1px solid #ccc;
             pointer-events: none;
         }
+        .wheel-label {
+            font-size: 14px;
+            margin-top: 5px;
+            text-align: center;
+        }
         button {
             padding: 10px 20px;
             margin: 5px;
@@ -137,6 +142,11 @@
             <div class="wheel" id="daywheel">
                 <div class="wheel-selection"></div>
             </div>
+        </div>
+        <div class="wheel-container">
+            <div class="wheel-label">year</div>
+            <div class="wheel-label">month</div>
+            <div class="wheel-label">day</div>
         </div>
         <button id="calculatebtn">calculate</button>
         <button id="downloadbtn">download pdf</button>
@@ -186,13 +196,13 @@
             function attachclickhandlers(wheel) {
                 var items = wheel.querySelectorAll('.wheel-item');
                 items.forEach(function(item, index) {
-                    item.onclick = function() {
+                    item.addEventListener('click', function() {
                         var itemheight = 50; // matches .wheel-item height
                         wheel.scrollTo({
                             top: index * itemheight,
                             behavior: 'smooth'
                         });
-                    };
+                    });
                 });
             }
 
@@ -206,26 +216,22 @@
             }
 
             // update days when year or month changes
-            yearwheel.onscroll = function() {
+            function updatedaysonscroll() {
                 var year = getselectedvalue(yearwheel);
                 var month = getselectedvalue(monthwheel);
                 if (year && month) {
                     updatedays(parseInt(year), parseInt(month));
                 }
-            };
-            monthwheel.onscroll = function() {
-                var year = getselectedvalue(yearwheel);
-                var month = getselectedvalue(monthwheel);
-                if (year && month) {
-                    updatedays(parseInt(year), parseInt(month));
-                }
-            };
+            }
+            yearwheel.onscroll = updatedaysonscroll;
+            monthwheel.onscroll = updatedaysonscroll;
 
-            // attach click handlers to year and month wheels
+            // attach click handlers to all wheels
             attachclickhandlers(yearwheel);
             attachclickhandlers(monthwheel);
+            attachclickhandlers(daywheel);
 
-            // initialize days and attach click handlers
+            // initialize days
             updatedays();
 
             // scroll to a default value (e.g., 2000-01-01)
@@ -353,6 +359,3 @@
     </script>
 </body>
 </html>
-</body>
-</html>
-
