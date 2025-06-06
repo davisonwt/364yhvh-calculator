@@ -307,9 +307,9 @@
                             return;
                         }
 
-                        // Reference: 1969-03-20 is YHVH year 5972, day 1
-                        var referenceDate = new Date(1969, 2, 20); // March 20, 1969
-                        var referenceYHVHYear = 5972;
+                        // Reference: 2025-03-20 is YHVH year 6028, cycle 5
+                        var referenceDate = new Date(2025, 2, 20); // March 20, 2025
+                        var referenceYHVHYear = 6028;
                         var daysPerYHVHYear = 364;
 
                         var timeDiff = birthdate - referenceDate;
@@ -318,10 +318,12 @@
                         var finalyhvhyear = referenceYHVHYear + totalYHVHYears;
                         var dayofyear = (daysDiff % daysPerYHVHYear) || daysPerYHVHYear;
 
-                        // 5-year cycle (yyc)
-                        var yyc = ((totalYHVHYears - 1) % 5) + 1;
+                        // Adjust for 5-year cycle (yyc)
+                        var cycleStartYear = 6024; // Assuming 6024 is cycle 1
+                        var cyclePosition = ((finalyhvhyear - cycleStartYear) % 5) || 5;
+                        var yyc = cyclePosition;
 
-                        // Month lengths from spreadsheet (approximate, adjust as needed)
+                        // Month lengths from spreadsheet (approximate)
                         var monthLengths = [31, 30, 31, 30, 31, 30, 31, 30, 31, 30, 31, 29];
                         var remainingDays = dayofyear;
                         var monthIndex = 0;
@@ -332,43 +334,37 @@
                         var finalyhvhmonth = monthIndex + 1;
                         var finalyhvhday = remainingDays;
 
-                        // Day of week (1969-03-20 is Sunday = 1)
-                        var startDayOfWeek = 1; // Sunday
+                        // Day of week (2025-03-20 is Thursday = 4)
+                        var startDayOfWeek = 4; // Thursday
                         var finaldayofweek = ((daysDiff - 1) % 7 + startDayOfWeek - 1) % 7 + 1;
 
                         // Week of 52
                         var finalweek = Math.floor((dayofyear - 1) / 7) + 1;
 
-                        // Portals (placeholder, map from spreadsheet)
-                        var finalportal = 1; // Default, adjust with specific rules
+                        // Portals (map from spreadsheet, placeholder)
+                        var finalportal = (dayofyear === 4) ? 1 : (dayofyear === 14) ? 2 : (dayofyear === 15) ? 3 : 1; // Adjust with exact rules
 
                         // Feasts (map from spreadsheet)
                         var feasts = {
-                            '1969-03-20': 'tequvah',
-                            '1970-04-02': 'pesach',
-                            '1970-06-02': 'shavuot',
-                            '1970-09-18': 'yom teruah',
-                            '1970-09-27': 'yom kippur',
-                            '1970-10-02': 'simcha torah'
+                            '2025-03-20': 'tequvah',
+                            '2025-04-02': 'pesach',
+                            '2025-06-02': 'shavuot',
+                            '2025-09-18': 'yom teruah',
+                            '2025-09-27': 'yom kippur',
+                            '2025-10-02': 'simcha torah'
                         };
                         var feast = feasts[birthdateinput] || 'none';
 
-                        var formattedday = "day " + dayofyear + " of 364";
-                        var formattedweekday = "day " + finaldayofweek;
-                        var formattedweek = "week " + finalweek + " of 52";
-
                         var resultHTML = '<h2>yhvh\'s set-apart date of birth</h2>' +
-                                        '<p><b>yhvh year count</b>: ' + yyc + '</p>' +
+                                        '<p><b>yhvh’s set-apart day of your creation:</b> ' + yyc + '/' + finalyhvhmonth + '/' + finalyhvhday + '</p>' +
                                         '<p><b>yhvh month count</b>: ' + finalyhvhmonth + '</p>' +
                                         '<p><b>yhvh month day count</b>: ' + finalyhvhday + '</p>' +
-                                        '<p><b>yhvh week days</b>: ' + formattedweekday + '</p>' +
-                                        '<p><b>sun & stars count</b>: ' + formattedday + '</p>' +
-                                        '<p><b>yhvh week count</b>: ' + formattedweek + '</p>' +
+                                        '<p><b>yhvh week days</b>: day ' + finaldayofweek + '</p>' +
+                                        '<p><b>sun & stars count</b>: day ' + dayofyear + ' of 364</p>' +
+                                        '<p><b>yhvh week count</b>: week ' + finalweek + ' of 52</p>' +
                                         '<p><b>yhvh portals</b>: ' + finalportal + '</p>' +
                                         '<p><b>yhvh feasts</b>: ' + feast + '</p>' +
-                                        '<p><b>gregorian year count</b>: ' + year + '</p>' +
-                                        '<p><b>gregorian month number</b>: ' + month + '</p>' +
-                                        '<p><b>gregorian day count</b>: ' + day + '</p>' +
+                                        '<p><b>gregorian day of your birth:</b> ' + year + '/' + month + '/' + day + '</p>' +
                                         '<p><b>halal-yah!</b></p>';
 
                         resultDiv.innerHTML = resultHTML;
