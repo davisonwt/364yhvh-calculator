@@ -182,8 +182,11 @@
 
             // get selected value
             function getselectedvalue(container, values) {
-                var index = Math.round(-parseFloat(container.style.transform.replace('translateY(', '').replace('px)', '')) / 50 + 1);
+                var transform = container.style.transform || 'translateY(0px)';
+                var translateY = parseFloat(transform.replace('translateY(', '').replace('px)', ''));
+                var index = Math.round(-translateY / 50 + 1);
                 index = Math.max(0, Math.min(index, values.length - 1));
+                console.log("selected index: " + index + ", value: " + values[index]);
                 return values[index];
             }
 
@@ -297,7 +300,8 @@
                         console.log("starting calculation");
                         var year = getselectedvalue(yearitems, years);
                         var month = getselectedvalue(monthitems, months);
-                        var day = getselectedvalue(dayitems, Array.from({length: new Date(year, month, 0).getDate()}, (_, i) => i + 1));
+                        var day = getselectedvalue(dayitems, Array.from({length: new Date(year, month - 1, 0).getDate()}, (_, i) => i + 1)); // Adjust month to 0-based for Date
+                        console.log("raw selected values - year: " + year + ", month: " + month + ", day: " + day);
                         if (!year || !month || !day) {
                             resultDiv.innerHTML = '<h2 style="text-transform: lowercase; font-variant: small-caps;">yhvh\'s set-apart date of birth</h2>' +
                                 '<p style="text-transform: lowercase; font-variant: small-caps;">please select a valid date.</p>' +
