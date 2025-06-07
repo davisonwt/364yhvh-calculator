@@ -22,7 +22,7 @@ if (calculateBtn) {
 
             var birthDate = new Date(Date.UTC(year, month - 1, day));
             var startOfYHVHYear = new Date(Date.UTC(year, 2, 20)); // March 20
-            console.log("Birth date (UTC):", birthDate, "Start of YHVH year (UTC):", startOfYHVHYear);
+            console.log("Birth date (UTC):", birthDate.toISOString(), "Start of YHVH year (UTC):", startOfYHVHYear.toISOString());
 
             if (isNaN(birthDate) || birthDate > new Date()) {
                 resultDiv.innerHTML = '<h2>yhvh\'s set-apart date of birth</h2>' +
@@ -31,20 +31,22 @@ if (calculateBtn) {
                 return;
             }
 
-            // Reference: 2025-03-20 is YHVH year 6028, s&sc 1, ywd 4
-            var referenceDate = new Date(2025, 2, 20);
-            var referenceYHVHYear = 6028;
-
-            // Calculate YHVH year
-            var currentYear = new Date().getFullYear();
-            var age = currentYear - year;
-            var finalYHVHYear = referenceYHVHYear - age;
-
-            // Calculate s&sc (sun & stars count)
+            // Calculate s&sc (sun & stars count) with manual validation
             var timeDiff = birthDate - startOfYHVHYear;
             var daysDiff = Math.floor(timeDiff / (1000 * 60 * 60 * 24)) + 1;
-            console.log("Time diff (ms):", timeDiff, "Days diff:", daysDiff);
-            var dayOfYear = ((daysDiff % 364) + 364) % 364 || 364;
+            console.log("Time diff (ms):", timeDiff, "Days diff (initial):", daysDiff);
+
+            // Manual day count as fallback
+            var manualDays = 0;
+            var currentDate = new Date(Date.UTC(year, 2, 20)); // Start at March 20
+            var targetDate = new Date(Date.UTC(year, month - 1, day));
+            while (currentDate <= targetDate) {
+                manualDays++;
+                currentDate.setUTCDate(currentDate.getUTCDate() + 1);
+            }
+            console.log("Manual days count:", manualDays); // Includes start day
+            daysDiff = manualDays; // Use manual count
+            var dayOfYear = ((daysDiff - 1) % 364) + 1 || 364; // Adjust to start at 1, not 0
 
             // Month lengths (Creator's months)
             var monthLengths = [30, 30, 31, 30, 30, 31, 30, 30, 31, 30, 30, 31];
