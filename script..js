@@ -40,13 +40,16 @@ if (calculateBtn) {
             var manualDays = 0;
             var currentDate = new Date(Date.UTC(year, 2, 20)); // Start at March 20
             var targetDate = new Date(Date.UTC(year, month - 1, day));
-            while (currentDate <= targetDate) {
+            console.log("Manual count start:", currentDate.toISOString(), "Target:", targetDate.toISOString());
+            while (currentDate < targetDate) {
                 manualDays++;
                 currentDate.setUTCDate(currentDate.getUTCDate() + 1);
+                console.log("Day:", manualDays, "Date:", currentDate.toISOString());
             }
-            console.log("Manual days count:", manualDays); // Includes start day
+            manualDays++; // Include the target day
+            console.log("Manual days count:", manualDays);
             daysDiff = manualDays; // Use manual count
-            var dayOfYear = ((daysDiff - 1) % 364) + 1 || 364; // Adjust to start at 1, not 0
+            var dayOfYear = ((daysDiff - 1) % 364) + 1 || 364; // Adjust to start at 1
 
             // Month lengths (Creator's months)
             var monthLengths = [30, 30, 31, 30, 30, 31, 30, 30, 31, 30, 30, 31];
