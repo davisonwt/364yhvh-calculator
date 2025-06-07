@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YHVH Set-Apart Date Calculator</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        select, button { padding: 5px; margin: 5px; }
+        #result { margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <div>
+        <select id="yearSelect"></select>
+        <select id="monthSelect"></select>
+        <select id="daySelect"></select>
+        <button id="calculateBtn">Calculate</button>
+        <button id="downloadPdfBtn">Download PDF</button>
+    </div>
+    <div id="result"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>
