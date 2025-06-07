@@ -20,9 +20,9 @@ if (calculateBtn) {
             var birthDateInput = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
             console.log("Birth date input:", birthDateInput);
 
-            var birthDate = new Date(year, month - 1, day);
-            var startOfYHVHYear = new Date(year, 2, 20); // March 20
-            console.log("Birth date:", birthDate, "Start of YHVH year:", startOfYHVHYear);
+            var birthDate = new Date(Date.UTC(year, month - 1, day));
+            var startOfYHVHYear = new Date(Date.UTC(year, 2, 20)); // March 20
+            console.log("Birth date (UTC):", birthDate, "Start of YHVH year (UTC):", startOfYHVHYear);
 
             if (isNaN(birthDate) || birthDate > new Date()) {
                 resultDiv.innerHTML = '<h2>yhvh\'s set-apart date of birth</h2>' +
@@ -46,7 +46,7 @@ if (calculateBtn) {
             console.log("Time diff (ms):", timeDiff, "Days diff:", daysDiff);
             var dayOfYear = ((daysDiff % 364) + 364) % 364 || 364;
 
-            // Month lengths
+            // Month lengths (Creator's months)
             var monthLengths = [30, 30, 31, 30, 30, 31, 30, 30, 31, 30, 30, 31];
             var cumulativeDays = [0];
             for (var i = 0; i < monthLengths.length; i++) {
