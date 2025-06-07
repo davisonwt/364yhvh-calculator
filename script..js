@@ -9,6 +9,8 @@ if (calculateBtn) {
             var month = getSelectedValue(monthItems, months, 'month');
             var daysInMonth = new Date(year, month, 0).getDate();
             var day = getSelectedValue(dayItems, Array.from({length: daysInMonth}, (_, i) => i + 1), 'day');
+            console.log("Input values - Year:", year, "Month:", month, "Day:", day);
+
             if (!year || !month || !day) {
                 resultDiv.innerHTML = '<h2>yhvh\'s set-apart date of birth</h2>' +
                                     '<p>please select a valid date.</p>' +
@@ -16,8 +18,12 @@ if (calculateBtn) {
                 return;
             }
             var birthDateInput = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
+            console.log("Birth date input:", birthDateInput);
 
             var birthDate = new Date(year, month - 1, day);
+            var startOfYHVHYear = new Date(year, 2, 20); // March 20
+            console.log("Birth date:", birthDate, "Start of YHVH year:", startOfYHVHYear);
+
             if (isNaN(birthDate) || birthDate > new Date()) {
                 resultDiv.innerHTML = '<h2>yhvh\'s set-apart date of birth</h2>' +
                                     '<p>please select a valid past date.</p>' +
@@ -35,8 +41,9 @@ if (calculateBtn) {
             var finalYHVHYear = referenceYHVHYear - age;
 
             // Calculate s&sc (sun & stars count)
-            var startOfYHVHYear = new Date(year, 2, 20); // March 20
-            var daysDiff = Math.floor((birthDate - startOfYHVHYear) / (1000 * 60 * 60 * 24)) + 1;
+            var timeDiff = birthDate - startOfYHVHYear;
+            var daysDiff = Math.floor(timeDiff / (1000 * 60 * 60 * 24)) + 1;
+            console.log("Time diff (ms):", timeDiff, "Days diff:", daysDiff);
             var dayOfYear = ((daysDiff % 364) + 364) % 364 || 364;
 
             // Month lengths
@@ -59,7 +66,7 @@ if (calculateBtn) {
             }
 
             // Calculate day of week (ywd: s&sc 1 = ywd 4)
-            var finalDayOfWeek = ((dayOfYear - 1 + 3) % 7) + 1; // Offset to make s&sc 1 = ywd 4
+            var finalDayOfWeek = ((dayOfYear - 1 + 3) % 7) + 1;
 
             // Calculate week of 52 (week 1, day 1 is s&sc -3; s&sc 1 is ywd 4)
             var finalWeek = Math.min(Math.floor((dayOfYear + 3 - 1) / 7) + 1, 52);
